@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
 #include <queue>
-#include <set>
 #include <chrono>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 using namespace std;
 
@@ -21,7 +20,7 @@ struct state
 	string lastOp;
 
 	state(size_t val, size_t depth, string op, state* p = nullptr) :
-		value(val), depth(depth), lastOp(op), parent(p) {};
+		value(val), depth(depth), lastOp(op), parent(p) {}
 };
 
 // Class controlling the searching
@@ -46,7 +45,7 @@ private:
 		else
 			return; // Root reached
 
-		cout << st->depth << ". ";
+		cout << "    " << st->depth << ". ";
 		cout << st->parent->value << st->lastOp << " = " << st->value << "\n";
 	}
 
@@ -184,133 +183,95 @@ public:
 	}
 
 	// Print the information about the solution
-	void print_result()
+	void print_result(bool print_ops)
 	{
-		cout << root->value << " -> " << ans->value << "\n";
-		cout << "Solution length: " << get_solution_length() << "\n";
+		cout << root->value << " -> " << ans->value << "\n    ";
+		cout << "Solution length: " << get_solution_length() << "\n    ";
 		cout << "Nodes checked: " << get_n_states_checked() << "\n";
-		cout << "Operations:\n";
-		print_operations();
-		cout << "\n";
+		if (print_ops)
+		{
+			cout << "Operations:\n";
+			print_operations();
+			cout << "\n";
+		}
 	}
 };
 
-int main()
+struct testcase {
+	size_t x, y, solution_length;
+
+	testcase(size_t x, size_t y, size_t len) :
+		x(x), y(y), solution_length(len) {}
+};
+
+void compare_ans(size_t x, size_t y)
 {
-	//size_t x, y;
+	if (x != y)
+		throw exception("Wrong answer");
+}
 
-	/*cout << "first number>> ";
-	cin >> x;
-
-	cout << "second number>> ";
-	cin >> y;*/
-
+void run_tests(const vector<testcase>& task, int task_n)
+{
 	BFS bfs;
 	chrono::steady_clock::time_point t1, t2;
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(1, 100);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+	for (int i = 0; i < task.size(); i++)
+	{
+		t1 = chrono::steady_clock::now();
+		if (task_n == 1)
+		{
+			bfs.search(task[i].x, task[i].y);
+		}
+		else
+		{
+			bfs.search2(task[i].x, task[i].y);
+		}
+		t2 = chrono::steady_clock::now();
+		//cout << task[i].x << " -> " << task[i].y << "\n    ";
+		bfs.print_result(0);
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(2, 55);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+		cout << "    Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(2, 100);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+		try
+		{
+			compare_ans(bfs.get_solution_length(), task[i].solution_length);
+		}
+		catch (exception e)
+		{
+			cout << "        " << bfs.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
+		}
+	}
+}
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(1, 97);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+void solve()
+{
+	vector<testcase> task1 = {
+		testcase(1, 100, 8),
+		testcase(2, 55, 6),
+		testcase(2, 100, 7),
+		testcase(1, 97, 8),
+		testcase(2, 1000, 12),
+		testcase(2, 800000, 24),
+		testcase(2, 10000001, 30)
+	};
+	
+	run_tests(task1, 1);
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(2, 1000);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+	vector<testcase> task2 = {
+		testcase(1, 100, 7),
+		testcase(2, 55, 6),
+		testcase(2, 100, 7),
+		testcase(1, 97, 8),
+		testcase(2, 1000, 11),
+		testcase(2, 3001, 14),
+		testcase(2, 800000, 23),
+		testcase(2, 10000001, 30)
+	};
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(2, 800000);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+	run_tests(task2, 2);
+}
 
-	t1 = chrono::steady_clock::now();
-	bfs.search(2, 10000001);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-
-	cout << "\n\n";
-
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(1, 100);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 3);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 55);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 100);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(1, 97);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 1000);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(3, 1001);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(3, 3001);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 800000);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
-
-	t1 = chrono::steady_clock::now();
-	bfs.search2(2, 10000001);
-	t2 = chrono::steady_clock::now();
-	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.print_result();
+int main()
+{
+	solve();
 }
