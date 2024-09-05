@@ -4,214 +4,193 @@
 #include <set>
 #include <chrono>
 #include <vector>
+#include <assert.h>
 
 using namespace std;
 
+// Information about the current state being checked
 struct state
 {
+	// Previous state
 	state* parent;
-	size_t x, depth;
+	// Current value
+	size_t value;
+	// Current depth
+	size_t depth;
+	// Operation with which this state was reached from
 	string lastOp;
 
-	state(size_t x, size_t depth, string op, state* p = nullptr) :
-		x(x), depth(depth), lastOp(op), parent(p) {};
+	state(size_t val, size_t depth, string op, state* p = nullptr) :
+		value(val), depth(depth), lastOp(op), parent(p) {};
 };
 
+// Class controlling the searching
 class BFS
 {
 private:
-	set<size_t> checkedNums;
-	vector<size_t> chN;
+	// Numbers that have already been checked
+	vector<size_t> checked_nums;
 
-	size_t nodesChecked;
+	// Number of checked states
+	size_t n_states_checked;
+	// Root state
 	state* root;
+	// State with desired number
 	state* ans;
 
-	priority_queue<pair<size_t, state*>> pq;
-
-	void printOperations(state* st)
+	// Print the sequence of operations used to obtain the desired number
+	void print_operations(state* st)
 	{
 		if (st->parent != nullptr)
-			printOperations(st->parent);
+			print_operations(st->parent);
 		else
-		{
-			return;
-		}
+			return; // Root reached
 
 		cout << st->depth << ". ";
-		cout << st->parent->x << st->lastOp << " = " << st->x << "\n";
+		cout << st->parent->value << st->lastOp << " = " << st->value << "\n";
 	}
 
 public:
+	// Search for a sequence of operations to get y from x (+3, *2)
 	bool search(size_t x, size_t y)
 	{
+		// Check if start number is already equals a desired number
 		if (x == y)
 		{
-			return 0;
+			ans = root;
+			return true;
 		}
-		++nodesChecked;
+		++n_states_checked;
 
-		chN = vector<size_t>(y + 1);
+		checked_nums = vector<size_t>(y + 1);
 
+		// Queue of states to check
 		queue<state*> q;
+
+		// Set the start number
 		root = new state(x, 0, "$");
+
+		// Queue next states
 		q.push(new state(x * 2, 1, "*2", root));
 		q.push(new state(x + 3, 1, "+3", root));
 
+		// Check all states in queue
 		while (!q.empty())
 		{
+			// Get current state
 			state* st = q.front();
 			q.pop();
-			++nodesChecked;
 
-			/*if (checkedNums.find(st->x) != checkedNums.end())
+			++n_states_checked;
+
+			// Check if state is correct and hasn't been checked before
+			if (st->value > y || checked_nums[st->value] == 1)
 			{
 				continue;
 			}
-			checkedNums.insert(st->x);*/
 
-			//cout << st->x << " " << y << "\n";
-			if (st->x > y || chN[st->x] == 1)
-			{
-				continue;
-			}
-			chN[st->x] = 1;
+			// Set the current number to be checked
+			checked_nums[st->value] = 1;
 
-			// found answer
-			if (st->x == y)
+			// If found answer
+			if (st->value == y)
 			{
-				//ops = st.ops;
-				//return ops.length();
 				ans = st;
 				return true;
 			}
 
-			//if (st->x < y)
-			{
-				q.push(new state(st->x * 2, st->depth + 1, "*2", st));
-				q.push(new state(st->x + 3, st->depth + 1, "+3", st));
-			}
+			// Queue next states
+			q.push(new state(st->value * 2, st->depth + 1, "*2", st));
+			q.push(new state(st->value + 3, st->depth + 1, "+3", st));
 		}
 
 		return false;
 	}
 
-	int searchPQ(int x, int y)
-	{
-		if (x == y)
-		{
-			return 0;
-		}
-
-		root = new state(x, 0, "$");
-		pq.push(make_pair<size_t, state*>(0, new state(x * 2, 1, "*2", root)));
-		pq.push(make_pair<size_t, state*>(1, new state(x + 3, 1, "+3", root)));
-
-		while (!pq.empty())
-		{
-			++nodesChecked;
-
-			state* st = pq.top().second;
-			pq.pop();
-
-			//cout << st.x << "\n";
-
-			// found answer
-			if (st->x == y)
-			{
-				//ops = st.ops;
-				//return ops.length();
-				ans = st;
-				return st->depth;
-			}
-
-			if (st->x < y)
-			{
-				pq.push(make_pair<size_t, state*>(0, new state(st->x + 3, st->depth + 1, "+2", st)));
-				pq.push(make_pair<size_t, state*>(1, new state(st->x * 2, st->depth + 1, "*2", st)));
-			}
-		}
-
-		return -1;
-	}
-
+	// Task 2 (3 operations: +3, *2, -2)
 	bool search2(size_t x, size_t y)
 	{
+		// Check if start number is already equals a desired number
 		if (x == y)
 		{
-			return 0;
+			ans = root;
+			return true;
 		}
-		++nodesChecked;
+		++n_states_checked;
 
-		chN = vector<size_t>(y + 1000);
+		checked_nums = vector<size_t>(y + 1000);
 
+		// Queue of states to check
 		queue<state*> q;
+
+		// Set the start number
 		root = new state(x, 0, "$");
+
+		// Queue next states
 		q.push(new state(x * 2, 1, "*2", root));
 		q.push(new state(x + 3, 1, "+3", root));
 		q.push(new state(x - 2, 1, "-2", root));
 
+		// Check all states in queue
 		while (!q.empty())
 		{
+			// Get current state
 			state* st = q.front();
 			q.pop();
-			++nodesChecked;
 
-			/*if (checkedNums.find(st->x) != checkedNums.end())
+			++n_states_checked;
+
+			// Check if state is correct and hasn't been checked before
+			if (st->value > checked_nums.size() - 1 || checked_nums[st->value] == 1)
 			{
 				continue;
 			}
-			checkedNums.insert(st->x);*/
 
-			//cout << st->x << " " << y << "\n";
-			if (st->x > chN.size() || chN[st->x] == 1)
-			{
-				continue;
-			}
-			chN[st->x] = 1;
+			// Set the current number to be checked
+			checked_nums[st->value] = 1;
 
-			// found answer
-			if (st->x == y)
+			// If found answer
+			if (st->value == y)
 			{
-				//ops = st.ops;
-				//return ops.length();
 				ans = st;
 				return true;
 			}
 
-			//if (st->x < y)
-			{
-				q.push(new state(st->x * 2, st->depth + 1, "*2", st));
-				q.push(new state(st->x + 3, st->depth + 1, "+3", st));
-				q.push(new state(st->x - 2, st->depth + 1, "-2", st));
-			}
+			// Queue next states
+			q.push(new state(st->value * 2, st->depth + 1, "*2", st));
+			q.push(new state(st->value + 3, st->depth + 1, "+3", st));
+			q.push(new state(st->value - 2, st->depth + 1, "-2", st));
 		}
 
 		return false;
 	}
 
-	int getNodes()
+	// Get number of states checked
+	int get_n_states_checked()
 	{
-		return nodesChecked;
+		return n_states_checked;
 	}
 
-	void printOperations()
+	// Print the sequence of operations used to obtain the desired number
+	void print_operations()
 	{
-		printOperations(ans);
+		print_operations(ans);
 	}
 
-	int getSolutionLength()
+	// Get the number of operations used
+	int get_solution_length()
 	{
 		return ans->depth;
 	}
 
-	void printResult()
+	// Print the information about the solution
+	void print_result()
 	{
-		cout << root->x << " -> " << ans->x << "\n";
-		cout << "Solution length: " << getSolutionLength() << "\n";
-		cout << "Nodes checked: " << getNodes() << "\n";
+		cout << root->value << " -> " << ans->value << "\n";
+		cout << "Solution length: " << get_solution_length() << "\n";
+		cout << "Nodes checked: " << get_n_states_checked() << "\n";
 		cout << "Operations:\n";
-		printOperations();
+		print_operations();
 		cout << "\n";
 	}
 };
@@ -233,43 +212,43 @@ int main()
 	bfs.search(1, 100);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(2, 55);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(2, 100);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(1, 97);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(2, 1000);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(2, 800000);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search(2, 10000001);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 
 	cout << "\n\n";
@@ -279,59 +258,59 @@ int main()
 	bfs.search2(1, 100);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 3);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 55);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 100);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(1, 97);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 1000);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(3, 1001);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(3, 3001);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 800000);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 
 	t1 = chrono::steady_clock::now();
 	bfs.search2(2, 10000001);
 	t2 = chrono::steady_clock::now();
 	cout << "Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
-	bfs.printResult();
+	bfs.print_result();
 }
