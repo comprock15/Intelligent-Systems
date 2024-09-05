@@ -164,6 +164,64 @@ public:
 		return false;
 	}
 
+	// Task 3 (y -> x, +3, *2)
+	bool search_reversed(size_t x, size_t y)
+	{
+		// Check if start number is already equals a desired number
+		if (x == y)
+		{
+			ans = root;
+			return true;
+		}
+		++n_states_checked;
+
+		checked_nums = vector<size_t>(y + 1);
+
+		// Queue of states to check
+		queue<state*> q;
+
+		// Set the start number
+		root = new state(y, 0, "$");
+
+		// Queue next states
+		if (y % 2 == 0)
+			q.push(new state(y / 2, 1, "/2", root));
+		q.push(new state(y - 3, 1, "-3", root));
+
+		// Check all states in queue
+		while (!q.empty())
+		{
+			// Get current state
+			state* st = q.front();
+			q.pop();
+
+			++n_states_checked;
+
+			// Check if state is correct and hasn't been checked before
+			if (st->value < 0 || checked_nums[st->value] == 1)
+			{
+				continue;
+			}
+
+			// Set the current number to be checked
+			checked_nums[st->value] = 1;
+
+			// If found answer
+			if (st->value == x)
+			{
+				ans = st;
+				return true;
+			}
+
+			// Queue next states
+			if (st->value % 2 == 0)
+				q.push(new state(st->value / 2, st->depth + 1, "/2", st));
+			q.push(new state(st->value - 3, st->depth + 1, "-3", st));
+		}
+
+		return false;
+	}
+
 	// Get number of states checked
 	int get_n_states_checked()
 	{
@@ -218,14 +276,21 @@ void run_tests(const vector<testcase>& task, int task_n)
 	for (int i = 0; i < task.size(); i++)
 	{
 		t1 = chrono::steady_clock::now();
-		if (task_n == 1)
+		switch (task_n)
 		{
+		case 1:
 			bfs.search(task[i].x, task[i].y);
-		}
-		else
-		{
+			break;
+		case 2:
 			bfs.search2(task[i].x, task[i].y);
+			break;
+		case 3:
+			bfs.search_reversed(task[i].x, task[i].y);
+			break;
+		default:
+			break;
 		}
+
 		t2 = chrono::steady_clock::now();
 		//cout << task[i].x << " -> " << task[i].y << "\n    ";
 		bfs.print_result(0);
@@ -246,7 +311,7 @@ void run_tests(const vector<testcase>& task, int task_n)
 void solve()
 {
 	vector<testcase> task1 = {
-		testcase(1, 100, 8),
+		testcase(1, 100, 7),
 		testcase(2, 55, 6),
 		testcase(2, 100, 7),
 		testcase(1, 97, 8),
@@ -255,6 +320,7 @@ void solve()
 		testcase(2, 10000001, 30)
 	};
 	
+	cout << "----Task1----\n";
 	run_tests(task1, 1);
 
 	vector<testcase> task2 = {
@@ -268,7 +334,11 @@ void solve()
 		testcase(2, 10000001, 30)
 	};
 
+	cout << "----Task2----\n";
 	run_tests(task2, 2);
+
+	cout << "----Task3----\n";
+	run_tests(task1, 3);
 }
 
 int main()
