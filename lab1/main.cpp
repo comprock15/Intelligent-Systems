@@ -37,6 +37,9 @@ private:
 	// State with desired number
 	state* ans;
 
+	// All created nodes to be deleted later
+	queue<state*> created_nodes;
+
 	// Print the sequence of operations used to obtain the desired number
 	void print_operations(state* st)
 	{
@@ -53,6 +56,9 @@ public:
 	// Search for a sequence of operations to get y from x (+3, *2)
 	bool search(size_t x, size_t y)
 	{
+		// Set the start number
+		root = new state(x, 0, "$");
+		
 		// Check if start number is already equals a desired number
 		if (x == y)
 		{
@@ -66,12 +72,17 @@ public:
 		// Queue of states to check
 		queue<state*> q;
 
-		// Set the start number
-		root = new state(x, 0, "$");
-
 		// Queue next states
-		q.push(new state(x * 2, 1, "*2", root));
-		q.push(new state(x + 3, 1, "+3", root));
+		state* st1;
+
+		st1 = new state(x * 2, 1, "*2", root);
+		q.push(st1);
+		created_nodes.push(st1);
+
+		st1 = new state(x + 3, 1, "+3", root);
+		q.push(st1);
+		created_nodes.push(st1);
+
 
 		// Check all states in queue
 		while (!q.empty())
@@ -99,8 +110,13 @@ public:
 			}
 
 			// Queue next states
-			q.push(new state(st->value * 2, st->depth + 1, "*2", st));
-			q.push(new state(st->value + 3, st->depth + 1, "+3", st));
+			st1 = new state(st->value * 2, st->depth + 1, "*2", st);
+			q.push(st1);
+			created_nodes.push(st1);
+
+			st1 = new state(st->value + 3, st->depth + 1, "+3", st);
+			q.push(st1);
+			created_nodes.push(st1);
 		}
 
 		return false;
@@ -109,6 +125,10 @@ public:
 	// Task 2 (3 operations: +3, *2, -2)
 	bool search2(size_t x, size_t y)
 	{
+		// Set the start number
+		root = new state(x, 0, "$");
+		created_nodes.push(root);
+
 		// Check if start number is already equals a desired number
 		if (x == y)
 		{
@@ -122,13 +142,20 @@ public:
 		// Queue of states to check
 		queue<state*> q;
 
-		// Set the start number
-		root = new state(x, 0, "$");
-
 		// Queue next states
-		q.push(new state(x * 2, 1, "*2", root));
-		q.push(new state(x + 3, 1, "+3", root));
-		q.push(new state(x - 2, 1, "-2", root));
+		state* st1;
+
+		st1 = new state(x * 2, 1, "*2", root);
+		q.push(st1);
+		created_nodes.push(st1);
+
+		st1 = new state(x + 3, 1, "+3", root);
+		q.push(st1);
+		created_nodes.push(st1);
+
+		st1 = new state(x - 2, 1, "-2", root);
+		q.push(st1);
+		created_nodes.push(st1);
 
 		// Check all states in queue
 		while (!q.empty())
@@ -156,9 +183,17 @@ public:
 			}
 
 			// Queue next states
-			q.push(new state(st->value * 2, st->depth + 1, "*2", st));
-			q.push(new state(st->value + 3, st->depth + 1, "+3", st));
-			q.push(new state(st->value - 2, st->depth + 1, "-2", st));
+			st1 = new state(st->value * 2, st->depth + 1, "*2", st);
+			q.push(st1);
+			created_nodes.push(st1);
+
+			st1 = new state(st->value + 3, st->depth + 1, "+3", st);
+			q.push(st1);
+			created_nodes.push(st1);
+
+			st1 = new state(st->value - 2, st->depth + 1, "-2", st);
+			q.push(st1);
+			created_nodes.push(st1);
 		}
 
 		return false;
@@ -167,6 +202,10 @@ public:
 	// Task 3 (y -> x, +3, *2)
 	bool search_reversed(size_t x, size_t y)
 	{
+		// Set the start number
+		root = new state(y, 0, "$");
+		created_nodes.push(root);
+
 		// Check if start number is already equals a desired number
 		if (x == y)
 		{
@@ -180,13 +219,17 @@ public:
 		// Queue of states to check
 		queue<state*> q;
 
-		// Set the start number
-		root = new state(y, 0, "$");
-
 		// Queue next states
+		state* st1;
 		if (y % 2 == 0)
-			q.push(new state(y / 2, 1, "/2", root));
-		q.push(new state(y - 3, 1, "-3", root));
+		{
+			st1 = new state(y / 2, 1, "/2", root);
+			q.push(st1);
+			created_nodes.push(st1);
+		}
+		st1 = new state(y - 3, 1, "-3", root);
+		q.push(st1);
+		created_nodes.push(st1);
 
 		// Check all states in queue
 		while (!q.empty())
@@ -215,8 +258,14 @@ public:
 
 			// Queue next states
 			if (st->value % 2 == 0)
-				q.push(new state(st->value / 2, st->depth + 1, "/2", st));
-			q.push(new state(st->value - 3, st->depth + 1, "-3", st));
+			{
+				st1 = new state(st->value / 2, st->depth + 1, "/2", st);
+				q.push(st1);
+				created_nodes.push(st1);
+			}
+			st1 = new state(st->value - 3, st->depth + 1, "-3", st);
+			q.push(st1);
+			created_nodes.push(st1);
 		}
 
 		return false;
@@ -252,6 +301,21 @@ public:
 			print_operations();
 			cout << "\n";
 		}
+	}
+
+	void purge_nodes()
+	{
+		while (!created_nodes.empty())
+		{
+			state* st = created_nodes.front();
+			created_nodes.pop();
+			delete st;
+		}
+	}
+
+	~BFS()
+	{
+		purge_nodes();
 	}
 };
 
@@ -305,6 +369,8 @@ void run_tests(const vector<testcase>& task, int task_n)
 		{
 			cout << "        " << bfs.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
 		}
+
+		bfs.purge_nodes();
 	}
 }
 
