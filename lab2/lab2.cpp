@@ -78,6 +78,10 @@ private:
 
     queue<state> created_states;
 
+    state dummy = state(start_positions, directions::UP, (short)-1, (short)0, dummy);
+    state root = state(start_positions, directions::UP, (short)0, (short)0, dummy);
+    state* ans = &root;
+
     const string solved = "123456789ABCDEF0";
 
     // Get numbers positions from string
@@ -86,7 +90,12 @@ private:
         for (size_t i = 0; i < p15.size; i++)
         {
             is >> p15.start_positions[i];
+            if (p15.start_positions[i] == '0')
+            {
+                p15.root.zero_index = i;
+            }
         }
+        p15.root.positions = p15.start_positions;
         return is;
     }
 
@@ -136,6 +145,15 @@ private:
         return (inversions + zero_row) % 2 != 0;
     }
 
+    void print_answer(state* node)
+    {
+        if (node != &root)
+        {
+            print_answer(&node->previous_state);
+            cout << *node << "\n";
+        }
+    }
+
 public:
     puzzle15(short side_size)
     {
@@ -162,16 +180,7 @@ public:
         unordered_set<string> checked_states;
         checked_states.insert(start_positions);
 
-        int zero_index;
-
-        for (zero_index = 0; zero_index < size; ++zero_index)
-            if (start_positions[zero_index] == '0')
-                break;
-
         queue<state*> q;
-
-        state dummy = state(start_positions, directions::UP, (short)-1, (short)zero_index, dummy);
-        state root = state(start_positions, directions::UP, (short)0, (short)zero_index, dummy);
 
         add_states(&root, q);
 
@@ -189,12 +198,13 @@ public:
             ++nodes_checked;
             if (st->positions == solved)
             {
-                cout << "depth: " << st->depth << " nodes checked: " << nodes_checked << "\n";
-                while (&st->previous_state != &dummy)
+                //cout << "depth: " << st->depth << " nodes checked: " << nodes_checked << "\n";
+                /*while (&st->previous_state != &dummy)
                 {
                     cout << *st << "\n";
                     st = &st->previous_state;
-                }
+                }*/
+                ans = st;
                 return true;
             }
 
@@ -219,7 +229,7 @@ public:
         {
             string pos1 = st->positions;
             swap(pos1[st->zero_index], pos1[st->zero_index + 4]);
-            created_states.push(state(pos1, directions::UP, st->depth + 1, st->zero_index + 4, *st));
+            created_states.push(state(pos1, directions::DOWN, st->depth + 1, st->zero_index + 4, *st));
             q.push(&created_states.back());
         }
 
@@ -239,12 +249,18 @@ public:
             q.push(&created_states.back());
         }
     }
+
+    void print_answer()
+    {
+        cout << "    depth: " << ans->depth << "\n";
+        print_answer(ans);
+    }
 };
 
 void solve()
 {
     string s;
-    s = "123456789ABCD0EF";
+    s = "16245A3709C8DEBF";
 
     puzzle15 p15 = puzzle15(4);
     istringstream iss(s);
@@ -254,6 +270,7 @@ void solve()
     cout << p15;
 
     p15.BFS();
+    p15.print_answer();
 }
 
 int main()
