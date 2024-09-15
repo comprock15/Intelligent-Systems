@@ -13,15 +13,15 @@ struct state
     short depth;
     directions previous_direction;
     string positions;
-    const state& previous_state;
+    state& previous_state;
     short zero_index;
 
-    state(const string& pos, directions dir, short depth, short zero_ind, const state& prev_state) :
+    state(const string& pos, directions dir, short depth, short zero_ind, state& prev_state) :
         positions(pos),
         previous_direction(dir),
         depth(depth),
         zero_index(zero_ind),
-        previous_state(previous_state) {};
+        previous_state(prev_state) {};
 
     friend ostream& operator<<(ostream& os, const state& st)
     {
@@ -76,7 +76,7 @@ private:
     
     int nodes_checked = 0;
 
-    //queue<state> created_states;
+    queue<state> created_states;
 
     const string solved = "123456789ABCDEF0";
 
@@ -168,68 +168,75 @@ public:
             if (start_positions[zero_index] == '0')
                 break;
 
-        queue<state> q;
+        queue<state*> q;
 
         state dummy = state(start_positions, directions::UP, (short)-1, (short)zero_index, dummy);
         state root = state(start_positions, directions::UP, (short)0, (short)zero_index, dummy);
 
-        add_states(root, q);
+        add_states(&root, q);
 
         while (!q.empty())
         {
-            state st = q.front();
+            state* st = q.front();
             q.pop();
 
             //cout << "prev " << st->previous_state << "\n";
             //cout << st << "\n";
 
-            if (checked_states.find(st.positions) != checked_states.end())
+            if (checked_states.find(st->positions) != checked_states.end())
                 continue;
 
             ++nodes_checked;
-            if (st.positions == solved)
+            if (st->positions == solved)
             {
-                cout << "depth: " << st.depth << " nodes checked: " << nodes_checked << "\n";
+                cout << "depth: " << st->depth << " nodes checked: " << nodes_checked << "\n";
+                while (&st->previous_state != &dummy)
+                {
+                    cout << *st << "\n";
+                    st = &st->previous_state;
+                }
                 return true;
             }
 
-            checked_states.insert(st.positions);
+            checked_states.insert(st->positions);
             add_states(st, q);
         }
 
         return false;
     }
 
-    inline void add_states(const state& st, queue<state>& q)
+    inline void add_states(state* st, queue<state*>& q)
     {
-        if (st.zero_index - 4 >= 0)
+        if (st->zero_index - 4 >= 0)
         {
-            string pos1 = st.positions;
-            swap(pos1[st.zero_index], pos1[st.zero_index - 4]);
-            //created_states.push(state(pos1, directions::UP, st.depth + 1, st.zero_index - 4, *st));
-            q.push(state(pos1, directions::UP, st.depth + 1, st.zero_index - 4, st));
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 4]);
+            created_states.push(state(pos1, directions::UP, st->depth + 1, st->zero_index - 4, *st));
+            q.push(&created_states.back());
         }
 
-        if (st.zero_index + 4 < size)
+        if (st->zero_index + 4 < size)
         {
-            string pos1 = st.positions;
-            swap(pos1[st.zero_index], pos1[st.zero_index + 4]);
-            q.push(state(pos1, directions::DOWN, st.depth + 1, st.zero_index + 4, st));
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 4]);
+            created_states.push(state(pos1, directions::UP, st->depth + 1, st->zero_index + 4, *st));
+            q.push(&created_states.back());
         }
 
-        if (st.zero_index % 4 != 0)
+        if (st->zero_index % 4 != 0)
         {
-            string pos1 = st.positions;
-            swap(pos1[st.zero_index], pos1[st.zero_index - 1]);
-            //created_states.push(state(pos1, directions::LEFT, st.depth + 1, st.zero_index - 1, *st));
-            q.push(state(pos1, directions::LEFT, st.depth + 1, st.zero_index - 1, st));
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 1]);
+            created_states.push(state(pos1, directions::LEFT, st->depth + 1, st->zero_index - 1, *st));
+            q.push(&created_states.back());
         }
 
-        if (st.zero_index % 4 != 3)
+        if (st->zero_index % 4 != 3)
         {
-            string pos1 = st.positions;
-            swap(pos1[st.zero_index], pos1[st.zero_index + 1]);
-            q.push(state(pos1, directions::RIGHT, st.depth + 1, st.zero_index + 1, st));
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 1]);
+            created_states.push(state(pos1, directions::RIGHT, st->depth + 1, st->zero_index + 1, *st));
+            q.push(&created_states.back());
         }
     }
 };
@@ -237,7 +244,7 @@ public:
 void solve()
 {
     string s;
-    s = "12345678A0BE9FCD";
+    s = "123456789ABCD0EF";
 
     puzzle15 p15 = puzzle15(4);
     istringstream iss(s);
