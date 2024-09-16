@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Directions where we can move 0-cell
 enum class directions { RIGHT, DOWN, LEFT, UP };
 
 struct state
@@ -25,8 +26,10 @@ struct state
 
     friend ostream& operator<<(ostream& os, const state& st)
     {
+        // Print number of action
         os << st.depth << ". ";
 
+        // Print direction
         switch (st.previous_direction)
         {
         case directions::DOWN:
@@ -45,6 +48,7 @@ struct state
             os << "Error with direction\n";
         }
 
+        // Print positions
         for (size_t i = 0; i < st.positions.length(); i++)
         {
             short num = stoi(string(1, st.positions[i]), 0, 16);
@@ -73,15 +77,19 @@ private:
     short size;
     // Positions of numbers
     string start_positions;
-    
+    // Number of checked nodes
     int nodes_checked = 0;
-
+    // All created states
     queue<state> created_states;
 
+    // "Null"-reference
     state dummy = state(start_positions, directions::UP, (short)-1, (short)0, dummy);
+    // Start state of solution
     state root = state(start_positions, directions::UP, (short)0, (short)0, dummy);
-    state* ans = &root;
+    // Final state of solution
+    state* ans = &dummy;
 
+    // Solved string
     const string solved = "123456789ABCDEF0";
 
     // Get numbers positions from string
@@ -99,7 +107,7 @@ private:
         return is;
     }
 
-    // Print puzzle15 current state
+    // Print puzzle15 start state
     friend ostream& operator<<(ostream& os, const puzzle15& p15)
     {
         for (size_t i = 0; i < p15.size; i++)
@@ -119,10 +127,15 @@ private:
         return os;
     }
 
+    // Check if the position is solvable
     inline bool is_solvable(const string& pos)
     {
+        // inversion: i < j, a[i] > a[j]
         int inversions = 0;
+        // Index of the row with zero
         int zero_row = 0;
+
+        // Count inversions (we don't count 0)
         for (size_t i = 0; i < size; ++i)
         {
             if (pos[i] != '0')
@@ -133,7 +146,7 @@ private:
                         ++inversions;
                 }
             }
-            else
+            else // zero found
             {
                 zero_row = i / 4;
             }
@@ -161,21 +174,24 @@ public:
         this->size = side_size * side_size;
         start_positions = string(size, '0');
     }
-    
-    // Flat print of current state of grid
-    void print()
-    {
-        cout << start_positions << "\n";
-    }
 
+    // Find solution using BFS
     bool BFS()
     {
+        // Check if the position is solvable
         if (!is_solvable(start_positions))
+        {
+            ans = &dummy;
             return false;
+        }
 
         ++nodes_checked;
+        // Check if puzzle is already solved
         if (start_positions == solved)
+        {
+            ans = &root;
             return true;
+        }
 
         unordered_set<string> checked_states;
         checked_states.insert(start_positions);
@@ -215,8 +231,10 @@ public:
         return false;
     }
 
+    // Add new states with moved zero
     inline void add_states(state* st, queue<state*>& q)
     {
+        // Move zero up
         if (st->zero_index - 4 >= 0)
         {
             string pos1 = st->positions;
@@ -225,6 +243,7 @@ public:
             q.push(&created_states.back());
         }
 
+        // Move zero down
         if (st->zero_index + 4 < size)
         {
             string pos1 = st->positions;
@@ -233,6 +252,7 @@ public:
             q.push(&created_states.back());
         }
 
+        // Move zero left
         if (st->zero_index % 4 != 0)
         {
             string pos1 = st->positions;
@@ -241,6 +261,7 @@ public:
             q.push(&created_states.back());
         }
 
+        // Move zero right
         if (st->zero_index % 4 != 3)
         {
             string pos1 = st->positions;
@@ -252,6 +273,11 @@ public:
 
     void print_answer()
     {
+        if (ans == &dummy)
+        {
+            cout << "Position can't be solved\n";
+            return;
+        }
         cout << "    depth: " << ans->depth << "\n";
         print_answer(ans);
     }
