@@ -1,8 +1,10 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <unordered_set>
 #include <queue>
+#include <chrono>
+#include <stack>
 
 using namespace std;
 
@@ -175,6 +177,20 @@ public:
         start_positions = string(size, '0');
     }
 
+    void set_positions(const string& pos)
+    {
+        nodes_checked = 0;
+        for (size_t i = 0; i < size; i++)
+        {
+            start_positions[i] = pos[i];
+            if (start_positions[i] == '0')
+            {
+                root.zero_index = i;
+            }
+        }
+        root.positions = start_positions;
+    }
+
     // Find solution using BFS
     bool BFS()
     {
@@ -205,21 +221,71 @@ public:
             state* st = q.front();
             q.pop();
 
-            //cout << "prev " << st->previous_state << "\n";
-            //cout << st << "\n";
+            if (st->depth > 80)
+                continue;
 
+            // if state already checked
             if (checked_states.find(st->positions) != checked_states.end())
                 continue;
 
             ++nodes_checked;
+
+            // if found answer
             if (st->positions == solved)
             {
-                //cout << "depth: " << st->depth << " nodes checked: " << nodes_checked << "\n";
-                /*while (&st->previous_state != &dummy)
-                {
-                    cout << *st << "\n";
-                    st = &st->previous_state;
-                }*/
+                ans = st;
+                return true;
+            }
+
+            checked_states.insert(st->positions);
+            add_states(st, q);
+        }
+
+        return false;
+    }
+
+    // Find solution using DFS;
+    bool DFS()
+    {
+        // Check if the position is solvable
+        if (!is_solvable(start_positions))
+        {
+            ans = &dummy;
+            return false;
+        }
+
+        ++nodes_checked;
+        // Check if puzzle is already solved
+        if (start_positions == solved)
+        {
+            ans = &root;
+            return true;
+        }
+
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        stack<state*> q;
+
+        add_states(&root, q);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+
+            if (st->depth > 80)
+                continue;
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            ++nodes_checked;
+
+            // if found answer
+            if (st->positions == solved)
+            {
                 ans = st;
                 return true;
             }
@@ -235,7 +301,7 @@ public:
     inline void add_states(state* st, queue<state*>& q)
     {
         // Move zero up
-        if (st->zero_index - 4 >= 0)
+        if (st->previous_direction != directions::DOWN && st->zero_index - 4 >= 0)
         {
             string pos1 = st->positions;
             swap(pos1[st->zero_index], pos1[st->zero_index - 4]);
@@ -244,7 +310,7 @@ public:
         }
 
         // Move zero down
-        if (st->zero_index + 4 < size)
+        if (st->previous_direction != directions::UP && st->zero_index + 4 < size)
         {
             string pos1 = st->positions;
             swap(pos1[st->zero_index], pos1[st->zero_index + 4]);
@@ -253,7 +319,7 @@ public:
         }
 
         // Move zero left
-        if (st->zero_index % 4 != 0)
+        if (st->previous_direction != directions::RIGHT && st->zero_index % 4 != 0)
         {
             string pos1 = st->positions;
             swap(pos1[st->zero_index], pos1[st->zero_index - 1]);
@@ -262,7 +328,45 @@ public:
         }
 
         // Move zero right
-        if (st->zero_index % 4 != 3)
+        if (st->previous_direction != directions::LEFT && st->zero_index % 4 != 3)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 1]);
+            created_states.push(state(pos1, directions::RIGHT, st->depth + 1, st->zero_index + 1, *st));
+            q.push(&created_states.back());
+        }
+    }
+    inline void add_states(state* st, stack<state*>& q)
+    {
+        // Move zero up
+        if (st->previous_direction != directions::DOWN && st->zero_index - 4 >= 0)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 4]);
+            created_states.push(state(pos1, directions::UP, st->depth + 1, st->zero_index - 4, *st));
+            q.push(&created_states.back());
+        }
+
+        // Move zero down
+        if (st->previous_direction != directions::UP && st->zero_index + 4 < size)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 4]);
+            created_states.push(state(pos1, directions::DOWN, st->depth + 1, st->zero_index + 4, *st));
+            q.push(&created_states.back());
+        }
+
+        // Move zero left
+        if (st->previous_direction != directions::RIGHT && st->zero_index % 4 != 0)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 1]);
+            created_states.push(state(pos1, directions::LEFT, st->depth + 1, st->zero_index - 1, *st));
+            q.push(&created_states.back());
+        }
+
+        // Move zero right
+        if (st->previous_direction != directions::LEFT && st->zero_index % 4 != 3)
         {
             string pos1 = st->positions;
             swap(pos1[st->zero_index], pos1[st->zero_index + 1]);
@@ -271,36 +375,116 @@ public:
         }
     }
 
-    void print_answer()
+    void print_answer(bool print_all_steps = false)
     {
+        cout << *this;
         if (ans == &dummy)
         {
             cout << "Position can't be solved\n";
             return;
         }
-        cout << "    depth: " << ans->depth << "\n";
-        print_answer(ans);
+        cout << "solution depth: " << ans->depth << "\n";
+        if (print_all_steps)
+            print_answer(ans);
+    }
+
+    short get_solution_length()
+    {
+        return ans->depth;
     }
 };
 
+struct testcase {
+    string positions;
+    short solution_length;
+
+    testcase(const string& pos, short len) :
+        positions(pos), solution_length(len) {}
+};
+
+void compare_ans(size_t x, size_t y)
+{
+    if (x != y)
+        throw exception("Wrong answer");
+}
+
+void run_tests(const vector<testcase>& task, int task_n)
+{
+    puzzle15 p15(4);
+    chrono::steady_clock::time_point t1, t2;
+
+    for (int i = 0; i < task.size(); i++)
+    {
+        p15.set_positions(task[i].positions);
+        switch (task_n)
+        {
+        case 1:
+            t1 = chrono::steady_clock::now();
+            p15.BFS();
+            t2 = chrono::steady_clock::now();
+            break;
+        case 2:
+            t1 = chrono::steady_clock::now();
+            p15.DFS();
+            t2 = chrono::steady_clock::now();
+            break;
+        default:
+            break;
+        }
+
+        p15.print_answer();
+
+        cout << "    Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
+
+        try
+        {
+            compare_ans(p15.get_solution_length(), task[i].solution_length);
+        }
+        catch (exception e)
+        {
+            cout << "        " << p15.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
+        }
+
+        cout << "\n";
+    }
+}
+
 void solve()
 {
-    string s;
-    s = "16245A3709C8DEBF";
+    vector<testcase> task = {
+        testcase("123456789AFB0EDC", -1),
+        testcase("F2345678A0BE91CD", -1),
+        testcase("123456789ABCDEF0", 0),
+        testcase("1234067859ACDEBF", 5),
+        testcase("5134207896ACDEBF", 8),
+        testcase("16245A3709C8DEBF", 10),
+        testcase("1723068459ACDEBF", 13),
+        testcase("12345678A0BE9FCD", 19)
+    };
 
-    puzzle15 p15 = puzzle15(4);
-    istringstream iss(s);
+    cout << "------------BFS------------\n";
+    run_tests(task, 1);
 
-    iss >> p15;
-    //cin >> p15;
-    cout << p15;
-
-    p15.BFS();
-    p15.print_answer();
+    cout << "------------DFS------------\n";
+    run_tests(task, 2);
 }
 
 int main()
 {
+    //string s;
+    //s = "16245A3709C8DEBF";
+
+    //puzzle15 p15 = puzzle15(4);
+    //istringstream iss(s);
+
+    //iss >> p15;
+    ////cin >> p15;
+    //cout << p15;
+
+    //p15.BFS();
+    //p15.print_answer();
+
     solve();
 }
+
 
