@@ -9,7 +9,7 @@
 using namespace std;
 
 // Directions where we can move 0-cell
-enum class directions { RIGHT, DOWN, LEFT, UP };
+enum class directions { RIGHT, DOWN, LEFT, UP, DUMMY };
 
 struct state
 {
@@ -85,9 +85,9 @@ private:
     queue<state> created_states;
 
     // "Null"-reference
-    state dummy = state(start_positions, directions::UP, (short)-1, (short)0, dummy);
+    state dummy = state(start_positions, directions::DUMMY, (short)-1, (short)0, dummy);
     // Start state of solution
-    state root = state(start_positions, directions::UP, (short)0, (short)0, dummy);
+    state root = state(start_positions, directions::DUMMY, (short)0, (short)0, dummy);
     // Final state of solution
     state* ans = &dummy;
 
@@ -297,6 +297,71 @@ public:
         return false;
     }
 
+    // Iterative Deepening Search
+    bool IDS()
+    {
+        // Check if the position is solvable
+        if (!is_solvable(start_positions))
+        {
+            ans = &dummy;
+            return false;
+        }
+
+        // Check if puzzle is already solved
+        if (start_positions == solved)
+        {
+            ans = &root;
+            return true;
+        }
+
+        ++nodes_checked;
+
+        for (short boundary = 1; boundary <= 80; boundary++)
+        {
+            if (DLS(boundary))
+                return true;
+        }
+        return false;
+    }
+
+    // Depth Limited Search
+    bool DLS(short boundary)
+    {
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        stack<state*> q;
+
+        add_states(&root, q);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+
+            if (st->depth > boundary)
+                continue;
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            ++nodes_checked;
+
+            // if found answer
+            if (st->positions == solved)
+            {
+                ans = st;
+                return true;
+            }
+
+            checked_states.insert(st->positions);
+            add_states(st, q);
+        }
+
+        return false;
+    }
+
     // Add new states with moved zero
     inline void add_states(state* st, queue<state*>& q)
     {
@@ -428,6 +493,11 @@ void run_tests(const vector<testcase>& task, int task_n)
             p15.DFS();
             t2 = chrono::steady_clock::now();
             break;
+        case 3:
+            t1 = chrono::steady_clock::now();
+            p15.IDS();
+            t2 = chrono::steady_clock::now();
+            break;
         default:
             break;
         }
@@ -459,14 +529,21 @@ void solve()
         testcase("5134207896ACDEBF", 8),
         testcase("16245A3709C8DEBF", 10),
         testcase("1723068459ACDEBF", 13),
-        testcase("12345678A0BE9FCD", 19)
+        testcase("0723168459ACDEBF", 14),
+        testcase("7023168459ACDEBF", 15),
+        testcase("7203168459ACDEBF", 16),
+        testcase("7283160459ACDEBF", 17),
+        testcase("12345678A0BE9FCD", 19),
     };
 
     cout << "------------BFS------------\n";
     run_tests(task, 1);
 
     cout << "------------DFS------------\n";
-    run_tests(task, 2);
+    //run_tests(task, 2);
+
+    cout << "------------IDS------------\n";
+    run_tests(task, 3);
 }
 
 int main()
