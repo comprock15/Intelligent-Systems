@@ -18,13 +18,16 @@ struct state
     string positions;
     state& previous_state;
     short zero_index;
+    short heuristics;
 
     state(const string& pos, directions dir, short depth, short zero_ind, state& prev_state) :
         positions(pos),
         previous_direction(dir),
         depth(depth),
         zero_index(zero_ind),
-        previous_state(prev_state) {};
+        previous_state(prev_state) {
+        heuristics = -1;
+    };
 
     friend ostream& operator<<(ostream& os, const state& st)
     {
@@ -69,6 +72,33 @@ struct state
         return os;
     }
 };
+
+class state_gte
+{
+public:
+    bool operator() (state* a, state* b)
+    {
+        return a->depth + a->heuristics >= b->depth + b->heuristics;
+    }
+};
+
+short manhattan_distance(state* st)
+{
+    short dist = 0;
+
+    for (int i = 0; i < st->positions.size(); ++i)
+    {
+        if (st->positions[i] != '0')
+        {
+            short n = stoi(string(1, st->positions[i]), 0, 16);
+            --n;
+            dist += abs(n - i) % 4; // dx
+            dist += abs(n - i) / 4; // dy
+        }
+    }
+ 
+    return dist;
+}
 
 class puzzle15
 {
@@ -194,6 +224,8 @@ public:
     // Find solution using BFS
     bool BFS()
     {
+        ++nodes_checked;
+
         // Check if the position is solvable
         if (!is_solvable(start_positions))
         {
@@ -201,7 +233,6 @@ public:
             return false;
         }
 
-        ++nodes_checked;
         // Check if puzzle is already solved
         if (start_positions == solved)
         {
@@ -221,14 +252,14 @@ public:
             state* st = q.front();
             q.pop();
 
+            ++nodes_checked;
+
             if (st->depth > 80)
                 continue;
 
             // if state already checked
             if (checked_states.find(st->positions) != checked_states.end())
                 continue;
-
-            ++nodes_checked;
 
             // if found answer
             if (st->positions == solved)
@@ -247,6 +278,8 @@ public:
     // Find solution using DFS;
     bool DFS()
     {
+        ++nodes_checked;
+
         // Check if the position is solvable
         if (!is_solvable(start_positions))
         {
@@ -254,7 +287,6 @@ public:
             return false;
         }
 
-        ++nodes_checked;
         // Check if puzzle is already solved
         if (start_positions == solved)
         {
@@ -274,14 +306,14 @@ public:
             state* st = q.top();
             q.pop();
 
+            ++nodes_checked;
+
             if (st->depth > 80)
                 continue;
 
             // if state already checked
             if (checked_states.find(st->positions) != checked_states.end())
                 continue;
-
-            ++nodes_checked;
 
             // if found answer
             if (st->positions == solved)
@@ -297,9 +329,11 @@ public:
         return false;
     }
 
-    // Iterative Deepening Search
+    // Find solution using Iterative Deepening Search
     bool IDS()
     {
+        ++nodes_checked;
+
         // Check if the position is solvable
         if (!is_solvable(start_positions))
         {
@@ -314,11 +348,10 @@ public:
             return true;
         }
 
-        ++nodes_checked;
-
         for (short boundary = 1; boundary <= 80; boundary++)
         {
             if (DLS(boundary))
+            //if (DLS_recur(&root, boundary))
                 return true;
         }
         return false;
@@ -339,14 +372,14 @@ public:
             state* st = q.top();
             q.pop();
 
+            ++nodes_checked;
+
             if (st->depth > boundary)
                 continue;
 
             // if state already checked
             if (checked_states.find(st->positions) != checked_states.end())
                 continue;
-
-            ++nodes_checked;
 
             // if found answer
             if (st->positions == solved)
@@ -357,6 +390,101 @@ public:
 
             checked_states.insert(st->positions);
             add_states(st, q);
+        }
+
+        return false;
+    }
+
+    // Slower than non-recursive version
+    bool DLS_recur(state* st, short boundary)
+    {
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        stack<state*> q;
+
+        add_states(st, q);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+
+            ++nodes_checked;
+
+            if (st->depth > boundary)
+                continue;
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            // if found answer
+            if (st->depth == boundary && st->positions == solved)
+            {
+                ans = st;
+                return true;
+            }
+
+            checked_states.insert(st->positions);
+
+            if (DLS_recur(st, boundary))
+                return true;
+        }
+
+        return false;
+    }
+
+    bool A_star(short (*heuristics)(state*))
+    {
+        ++nodes_checked;
+
+        // Check if the position is solvable
+        if (!is_solvable(start_positions))
+        {
+            ans = &dummy;
+            return false;
+        }
+
+        // Check if puzzle is already solved
+        if (start_positions == solved)
+        {
+            ans = &root;
+            return true;
+        }
+
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        priority_queue<state*, vector<state*>, state_gte> q;
+
+        root.heuristics = (*heuristics)(&root);
+
+        add_states(&root, q, heuristics);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+            
+            ++nodes_checked;
+
+            if (st->depth > 80)
+                continue;
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            // if found answer
+            if (st->positions == solved)
+            {
+                ans = st;
+                return true;
+            }
+
+            checked_states.insert(st->positions);
+            add_states(st, q, heuristics);
         }
 
         return false;
@@ -401,6 +529,7 @@ public:
             q.push(&created_states.back());
         }
     }
+
     inline void add_states(state* st, stack<state*>& q)
     {
         // Move zero up
@@ -440,6 +569,49 @@ public:
         }
     }
 
+    inline void add_states(state* st, priority_queue<state*, vector<state*>, state_gte>& q, short (*heuristics)(state*))
+    {
+        // Move zero up
+        if (st->previous_direction != directions::DOWN && st->zero_index - 4 >= 0)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 4]);
+            created_states.push(state(pos1, directions::UP, st->depth + 1, st->zero_index - 4, *st));
+            created_states.back().heuristics = (*heuristics)(&created_states.back());
+            q.push(&created_states.back());
+        }
+
+        // Move zero down
+        if (st->previous_direction != directions::UP && st->zero_index + 4 < size)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 4]);
+            created_states.push(state(pos1, directions::DOWN, st->depth + 1, st->zero_index + 4, *st));
+            created_states.back().heuristics = (*heuristics)(&created_states.back());
+            q.push(&created_states.back());
+        }
+
+        // Move zero left
+        if (st->previous_direction != directions::RIGHT && st->zero_index % 4 != 0)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index - 1]);
+            created_states.push(state(pos1, directions::LEFT, st->depth + 1, st->zero_index - 1, *st));
+            created_states.back().heuristics = (*heuristics)(&created_states.back());
+            q.push(&created_states.back());
+        }
+
+        // Move zero right
+        if (st->previous_direction != directions::LEFT && st->zero_index % 4 != 3)
+        {
+            string pos1 = st->positions;
+            swap(pos1[st->zero_index], pos1[st->zero_index + 1]);
+            created_states.push(state(pos1, directions::RIGHT, st->depth + 1, st->zero_index + 1, *st));
+            created_states.back().heuristics = (*heuristics)(&created_states.back());
+            q.push(&created_states.back());
+        }
+    }
+
     void print_answer(bool print_all_steps = false)
     {
         cout << *this;
@@ -473,7 +645,7 @@ void compare_ans(size_t x, size_t y)
         throw exception("Wrong answer");
 }
 
-void run_tests(const vector<testcase>& task, int task_n)
+void run_tests(const vector<testcase>& task, int task_n, bool print_ans=0)
 {
     puzzle15 p15(4);
     chrono::steady_clock::time_point t1, t2;
@@ -498,11 +670,16 @@ void run_tests(const vector<testcase>& task, int task_n)
             p15.IDS();
             t2 = chrono::steady_clock::now();
             break;
+        case 4:
+            t1 = chrono::steady_clock::now();
+            p15.A_star(manhattan_distance);
+            t2 = chrono::steady_clock::now();
+            break;
         default:
             break;
         }
 
-        p15.print_answer();
+        p15.print_answer(print_ans);
 
         cout << "    Time: " << chrono::duration_cast<chrono::milliseconds> (t2 - t1).count() << " ms\n";
 
@@ -536,14 +713,30 @@ void solve()
         testcase("12345678A0BE9FCD", 19),
     };
 
+    vector<testcase> task_hard = {
+        testcase("12345078A6BE9FCD", 20),
+        testcase("51247308A6BE9FCD", 27),
+        testcase("F2345678A0BE91DC", 33),
+        testcase("75123804A6BE9FCD", 35),
+        testcase("75AB2C416D389F0E", 45),
+        testcase("75AB2C416D089F3E", 46),
+        /*testcase("75AB2C016D489F3E", 47),
+        testcase("04582E1DF79BCA36", 48),
+        testcase("FE169B4C0A73D852", 52),*/
+    };
+
     cout << "------------BFS------------\n";
-    run_tests(task, 1);
+    //run_tests(task, 1);
 
     cout << "------------DFS------------\n";
     //run_tests(task, 2);
 
     cout << "------------IDS------------\n";
-    run_tests(task, 3);
+    //run_tests(task, 3);
+
+    cout << "------------A*------------\n";
+    //run_tests(task, 4);
+    run_tests(task_hard, 4);
 }
 
 int main()
