@@ -85,16 +85,30 @@ public:
 short manhattan_distance(state* st)
 {
     short dist = 0;
-
-    for (int i = 0; i < st->positions.size(); ++i)
+    
+    // the state is the root
+    if (st->depth == 0)
     {
-        if (st->positions[i] != '0')
+        for (int i = 0; i < st->positions.size(); ++i)
         {
-            short n = stoi(string(1, st->positions[i]), 0, 16);
-            --n;
-            dist += abs(n - i) % 4; // dx
-            dist += abs(n - i) / 4; // dy
+            if (st->positions[i] != '0')
+            {
+                short n = stoi(string(1, st->positions[i]), 0, 16);
+                --n;
+                dist += abs(n - i) % 4; // dx
+                dist += abs(n - i) / 4; // dy
+            }
         }
+    }
+    else // any other state
+    {
+        dist = st->previous_state.heuristics;
+        short n = stoi(string(1, st->previous_state.positions[st->zero_index]), 0, 16);
+        --n;
+        // old manhattan distance
+        dist -= abs(n - st->zero_index) % 4 + abs(n - st->zero_index) / 4;
+        // new manhattan distance
+        dist += abs(n - st->previous_state.zero_index) % 4 + abs(n - st->previous_state.zero_index) / 4; 
     }
  
     return dist;
@@ -620,6 +634,7 @@ public:
             cout << "Position can't be solved\n";
             return;
         }
+        cout << "nodes checked:  " << nodes_checked << "\n";
         cout << "solution depth: " << ans->depth << "\n";
         if (print_all_steps)
             print_answer(ans);
