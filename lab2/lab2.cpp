@@ -504,6 +504,79 @@ public:
         return false;
     }
 
+    bool IDA_star(short (*heuristics)(state*))
+    {
+        ++nodes_checked;
+
+        // Check if the position is solvable
+        if (!is_solvable(start_positions))
+        {
+            ans = &dummy;
+            return false;
+        }
+
+        // Check if puzzle is already solved
+        if (start_positions == solved)
+        {
+            ans = &root;
+            return true;
+        }
+
+        root.heuristics = (*heuristics)(&root);
+
+        short boundary = root.heuristics;
+
+        for(int i = 0; i < 1000; ++i)
+        {
+            boundary = IDA_star_search(&root, boundary, heuristics);
+            if (boundary == 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    short IDA_star_search(state* st, short boundary, short (*heuristics)(state*))
+    {            
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        priority_queue<state*, vector<state*>, state_gte> q;
+
+        short new_boundary = 666666;
+        add_states(st, q, heuristics);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+
+            ++nodes_checked;
+
+            if (st->depth + st->heuristics > boundary)
+            {
+                new_boundary = min(new_boundary, (short)(st->depth + st->heuristics));
+                continue;
+            }
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            // if found answer
+            if (st->positions == solved)
+            {
+                ans = st;
+                return 0;
+            }
+
+            checked_states.insert(st->positions);
+            add_states(st, q, heuristics);
+        }
+
+        return new_boundary;
+    }
+
     // Add new states with moved zero
     inline void add_states(state* st, queue<state*>& q)
     {
@@ -690,6 +763,11 @@ void run_tests(const vector<testcase>& task, int task_n, bool print_ans=0)
             p15.A_star(manhattan_distance);
             t2 = chrono::steady_clock::now();
             break;
+        case 5:
+            t1 = chrono::steady_clock::now();
+            p15.IDA_star(manhattan_distance);
+            t2 = chrono::steady_clock::now();
+            break;
         default:
             break;
         }
@@ -735,9 +813,12 @@ void solve()
         testcase("75123804A6BE9FCD", 35),
         testcase("75AB2C416D389F0E", 45),
         testcase("75AB2C416D089F3E", 46),
-        /*testcase("75AB2C016D489F3E", 47),
+    };
+
+    vector<testcase> task_hardest = {
+        testcase("75AB2C016D489F3E", 47),
         testcase("04582E1DF79BCA36", 48),
-        testcase("FE169B4C0A73D852", 52),*/
+        testcase("FE169B4C0A73D852", 52),
     };
 
     cout << "------------BFS------------\n";
@@ -751,7 +832,11 @@ void solve()
 
     cout << "------------A*------------\n";
     //run_tests(task, 4);
-    run_tests(task_hard, 4);
+    //run_tests(task_hard, 4);
+
+    cout << "------------IDA*------------\n";
+    //run_tests(task, 5);
+    run_tests(task_hard, 5);
 }
 
 int main()
