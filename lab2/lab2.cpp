@@ -531,6 +531,8 @@ public:
             boundary = IDA_star_search(&root, boundary, heuristics);
             if (boundary == 0)
                 return true;
+            else if (boundary == 666666)
+                return false;
         }
 
         return false;
@@ -575,6 +577,55 @@ public:
         }
 
         return new_boundary;
+    }
+
+    short IDA_star_search_recur(state* st, short boundary, short (*heuristics)(state*))
+    {
+        short f = st->depth + st->heuristics;
+        if (f > boundary)
+            return f;
+
+        if (st->positions == solved)
+        {
+            ans = st;
+            return 0;
+        }
+
+        unordered_set<string> checked_states;
+        checked_states.insert(start_positions);
+
+        priority_queue<state*, vector<state*>, state_gte> q;
+
+        short mmin = 666666;
+
+        add_states(st, q, heuristics);
+
+        while (!q.empty())
+        {
+            state* st = q.top();
+            q.pop();
+
+            ++nodes_checked;
+
+            // if state already checked
+            if (checked_states.find(st->positions) != checked_states.end())
+                continue;
+
+            short t = IDA_star_search_recur(st, boundary, heuristics);
+
+            if (t == 0)
+                return 0;
+
+            if (t < mmin)
+            {
+                mmin = t;
+            }
+
+            checked_states.insert(st->positions);
+            //add_states(st, q, heuristics);
+        }
+
+        return mmin;
     }
 
     // Add new states with moved zero
@@ -707,7 +758,7 @@ public:
             cout << "Position can't be solved\n";
             return;
         }
-        cout << "nodes checked:  " << nodes_checked << "\n";
+        //cout << "nodes checked:  " << nodes_checked << "\n";
         cout << "solution depth: " << ans->depth << "\n";
         if (print_all_steps)
             print_answer(ans);
@@ -822,20 +873,21 @@ void solve()
     };
 
     cout << "------------BFS------------\n";
-    //run_tests(task, 1);
+    run_tests(task, 1);
 
-    cout << "------------DFS------------\n";
+    cout << "\n------------DFS------------\n";
     //run_tests(task, 2);
+    cout << "Can't be used to solve this problem\n";
 
-    cout << "------------IDS------------\n";
-    //run_tests(task, 3);
+    cout << "\n------------IDS------------\n";
+    run_tests(task, 3);
 
-    cout << "------------A*------------\n";
-    //run_tests(task, 4);
-    //run_tests(task_hard, 4);
+    cout << "\n------------A*------------\n";
+    run_tests(task, 4);
+    run_tests(task_hard, 4);
 
-    cout << "------------IDA*------------\n";
-    //run_tests(task, 5);
+    cout << "\n------------IDA*------------\n";
+    run_tests(task, 5);
     run_tests(task_hard, 5);
 }
 
