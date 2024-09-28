@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <stack>
 #include <unordered_set>
 #include <vector>
 #include <chrono>
@@ -113,31 +114,32 @@ private:
 		}
 	}
 
-	inline void add_states(state* node, std::queue<state*>& q)
+	template <class Container>
+	inline void add_states(state* node, Container& opened)
 	{
 		// move boat alone to the opposite coast
 		created_states.push(state(node->wolf, node->goat, node->cabbage, !node->boat, node->depth + 1, node));
-		q.push(&created_states.back());
+		opened.push(&created_states.back());
 
 		// move wolf to the opposite coast
 		if (node->boat == node->wolf)
 		{
 			created_states.push(state(!node->wolf, node->goat, node->cabbage, !node->boat, node->depth + 1, node));
-			q.push(&created_states.back());
+			opened.push(&created_states.back());
 		}
 
 		// move goat to the opposite coast
 		if (node->boat == node->goat)
 		{
 			created_states.push(state(node->wolf, !node->goat, node->cabbage, !node->boat, node->depth + 1, node));
-			q.push(&created_states.back());
+			opened.push(&created_states.back());
 		}
 
 		// move cabbage to the opposite coast
 		if (node->boat == node->cabbage)
 		{
 			created_states.push(state(node->wolf, node->goat, !node->cabbage, !node->boat, node->depth + 1, node));
-			q.push(&created_states.back());
+			opened.push(&created_states.back());
 		}
 	}
 
@@ -193,6 +195,74 @@ public:
 		}
 
 		return false;
+	}
+
+	// solve task using DFS
+	bool DFS(short max_depth = 7)
+	{
+		++nodes_checked;
+
+		if (is_answer(&root))
+		{
+			ans = &root;
+			return true;
+		}
+
+		if (!root.is_safe())
+			return false;
+
+		std::unordered_set<state, state_hash, state_eq> closed;
+		std::stack<state*> opened;
+
+		add_states(&root, opened);
+
+		while (!opened.empty())
+		{
+			state* st = opened.top();
+			opened.pop();
+
+			++nodes_checked;
+
+			if (st->depth > max_depth)
+				continue;
+
+			// if state already appeared
+			auto temp = closed.find(*st);
+			if (temp != closed.end())
+			{
+				if (temp->depth <= st->depth)
+					continue;
+				else // new depth is less then saved earlier
+				{
+					closed.erase(temp);
+					closed.insert(*st);
+				}
+			}
+
+			if (!st->is_safe())
+				continue;
+
+			// if found answer
+			if (is_answer(st))
+			{
+				if (ans == nullptr)
+				{
+					ans = st;
+				}
+				else // shorter solution found
+				{
+					if (ans->depth > st->depth)
+						ans = st;
+				}
+				//return true;
+			}
+
+			closed.insert(*st);
+
+			add_states(st, opened);
+		}
+
+		return ans != nullptr;
 	}
 
 	void print_answer(bool print_all_steps = false)
@@ -262,6 +332,11 @@ void run_tests(const std::vector<testcase>& task, int task_n, bool print_ans = 0
 			sol.BFS();
 			t2 = std::chrono::steady_clock::now();
 			break;
+		case 2:
+			t1 = std::chrono::steady_clock::now();
+			sol.DFS();
+			t2 = std::chrono::steady_clock::now();
+			break;
 		default:
 			break;
 		}
@@ -306,6 +381,9 @@ void solve()
 
 	std::cout << "------------BFS------------\n";
 	run_tests(task, 1);
+
+	std::cout << "\n------------DFS------------\n";
+	run_tests(task, 2);
 }
 
 int main()
