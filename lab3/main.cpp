@@ -148,6 +148,58 @@ private:
 		return node->wolf && node->goat && node->cabbage && node->boat;
 	}
 
+	// Depth Limited Search
+	bool DLS(short boundary)
+	{
+		++nodes_checked;
+
+		std::unordered_set<state, state_hash, state_eq> closed;
+		std::stack<state*> opened;
+
+		closed.insert(root);
+		add_states(&root, opened);
+
+		while (!opened.empty())
+		{
+			state* st = opened.top();
+			opened.pop();
+
+			++nodes_checked;
+
+			if (st->depth > boundary)
+				continue;
+
+			// if state already appeared
+			auto temp = closed.find(*st);
+			if (temp != closed.end())
+			{
+				if (temp->depth <= st->depth)
+					continue;
+				else // new depth is less then saved earlier
+				{
+					closed.erase(temp);
+					closed.insert(*st);
+				}
+			}
+
+			if (!st->is_safe())
+				continue;
+
+			// if found answer
+			if (is_answer(st))
+			{
+				ans = st;
+				return true;
+			}
+
+			closed.insert(*st);
+
+			add_states(st, opened);
+		}
+
+		return false;
+	}
+
 public:
 	// solve task using BFS
 	bool BFS()
@@ -166,6 +218,7 @@ public:
 		std::unordered_set<state, state_hash, state_eq> closed;
 		std::queue<state*> opened;
 
+		closed.insert(root);
 		add_states(&root, opened);
 
 		while (!opened.empty())
@@ -214,6 +267,7 @@ public:
 		std::unordered_set<state, state_hash, state_eq> closed;
 		std::stack<state*> opened;
 
+		closed.insert(root);
 		add_states(&root, opened);
 
 		while (!opened.empty())
@@ -263,6 +317,31 @@ public:
 		}
 
 		return ans != nullptr;
+	}
+
+	// Find solution using Iterative Deepening Search
+	bool IDS(short max_depth = 7)
+	{
+		++nodes_checked;
+
+		if (is_answer(&root))
+		{
+			ans = &root;
+			return true;
+		}
+
+		if (!root.is_safe())
+			return false;
+
+		std::unordered_set<state, state_hash, state_eq> closed;
+		std::stack<state*> opened;
+
+		for (short boundary = 1; boundary <= max_depth; boundary++)
+		{
+			if (DLS(boundary))
+				return true;
+		}
+		return false;
 	}
 
 	void print_answer(bool print_all_steps = false)
@@ -337,11 +416,16 @@ void run_tests(const std::vector<testcase>& task, int task_n, bool print_ans = 0
 			sol.DFS();
 			t2 = std::chrono::steady_clock::now();
 			break;
+		case 3:
+			t1 = std::chrono::steady_clock::now();
+			sol.IDS();
+			t2 = std::chrono::steady_clock::now();
+			break;
 		default:
 			break;
 		}
 
-		sol.print_answer(false);
+		sol.print_answer(print_ans);
 
 		std::cout << "    Time: " << std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1).count() << " ms\n";
 
@@ -355,6 +439,91 @@ void run_tests(const std::vector<testcase>& task, int task_n, bool print_ans = 0
 		}
 
 		std::cout << "\n";
+	}
+}
+
+void run_tests_compare(const std::vector<testcase>& task, bool print_ans = 0)
+{
+	std::chrono::steady_clock::time_point t1, t2;
+
+	for (int i = 0; i < task.size(); i++)
+	{
+		{
+			solver sol;
+			sol.set_root(task[i].wolf, task[i].goat, task[i].cabbage, task[i].boat);
+
+			t1 = std::chrono::steady_clock::now();
+			sol.BFS();
+			t2 = std::chrono::steady_clock::now();
+			std::cout << "BFS:\n";
+
+			sol.print_answer(print_ans);
+
+			std::cout << "    Time: " << std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1).count() << " ms\n";
+
+			try
+			{
+				compare_ans(sol.get_solution_length(), task[i].solution_length);
+			}
+			catch (std::exception e)
+			{
+				std::cout << "        " << sol.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
+			}
+
+			std::cout << "\n";
+		}
+
+		{
+			solver sol;
+			sol.set_root(task[i].wolf, task[i].goat, task[i].cabbage, task[i].boat);
+
+			t1 = std::chrono::steady_clock::now();
+			sol.DFS();
+			t2 = std::chrono::steady_clock::now();
+			std::cout << "DFS:\n";
+
+			sol.print_answer(print_ans);
+
+			std::cout << "    Time: " << std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1).count() << " ms\n";
+
+			try
+			{
+				compare_ans(sol.get_solution_length(), task[i].solution_length);
+			}
+			catch (std::exception e)
+			{
+				std::cout << "        " << sol.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
+			}
+
+			std::cout << "\n";
+		}
+
+		{
+			solver sol;
+			sol.set_root(task[i].wolf, task[i].goat, task[i].cabbage, task[i].boat);
+
+			t1 = std::chrono::steady_clock::now();
+			sol.IDS();
+			t2 = std::chrono::steady_clock::now();
+			std::cout << "IDS:\n";
+
+			sol.print_answer(print_ans);
+
+			std::cout << "    Time: " << std::chrono::duration_cast<std::chrono::milliseconds> (t2 - t1).count() << " ms\n";
+
+			try
+			{
+				compare_ans(sol.get_solution_length(), task[i].solution_length);
+			}
+			catch (std::exception e)
+			{
+				std::cout << "        " << sol.get_solution_length() << " != " << task[i].solution_length << " WRONG ANSWER\n";
+			}
+
+			std::cout << "\n";
+		}
+
+		std::cout << "------------------------------------\n";
 	}
 }
 
@@ -379,11 +548,16 @@ void solve()
 		testcase(1, 1, 1, 1, 0)
 	};
 
-	std::cout << "------------BFS------------\n";
+	/*std::cout << "------------BFS------------\n";
 	run_tests(task, 1);
 
 	std::cout << "\n------------DFS------------\n";
 	run_tests(task, 2);
+
+	std::cout << "\n------------IDS------------\n";
+	run_tests(task, 3);*/
+
+	run_tests_compare(task);
 }
 
 int main()
