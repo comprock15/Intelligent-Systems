@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <array>
+#include <string>
 
 const __int8 SIDE_SIZE = 8;
 const _int8 BOARD_SIZE = SIDE_SIZE * SIDE_SIZE;
@@ -62,10 +63,37 @@ class game
 
 	bool check_bounds_ok(__int8 pos, directions dir)
 	{
-		return ((dir == directions::upleft || dir == directions::up || dir == directions::upright) && (pos / SIDE_SIZE != 0)) ||
-			((dir == directions::upright || dir == directions::right || dir == directions::downright) && ((pos + 1) % SIDE_SIZE != 0)) ||
-			((dir == directions::upleft || dir == directions::left || dir == directions::upright) && (pos % SIDE_SIZE != 0)) ||
-			((dir == directions::downleft || dir == directions::down || dir == directions::downright) && (pos / SIDE_SIZE < SIDE_SIZE - 1));
+		switch (dir)
+		{
+		case up:
+			return pos / SIDE_SIZE != 0;
+			break;
+		case upright:
+			return pos / SIDE_SIZE != 0 && (pos + 1) % SIDE_SIZE != 0;
+			break;
+		case right:
+			return (pos + 1) % SIDE_SIZE != 0;
+			break;
+		case downright:
+			return pos / SIDE_SIZE < SIDE_SIZE - 1 && (pos + 1) % SIDE_SIZE != 0;
+			break;
+		case down:
+			return pos / SIDE_SIZE < SIDE_SIZE - 1;
+			break;
+		case downleft:
+			return pos / SIDE_SIZE < SIDE_SIZE - 1 && pos % SIDE_SIZE != 0;
+			break;
+		case left:
+			return pos % SIDE_SIZE != 0;
+			break;
+		case upleft:
+			return pos / SIDE_SIZE != 0 && pos % SIDE_SIZE != 0;
+			break;
+		default:
+			break;
+		}
+
+		return false;
 	}
 
 	bool can_make_move(__int8 pos, __int8 current_color)
@@ -152,7 +180,7 @@ class game
 		if (bot_has_moves)
 		{
 			board[pos] = bot_color;
-			std::cerr << (char)('a' + pos % SIDE_SIZE) << pos / SIDE_SIZE + 1 << "\n";
+			std::cerr << (char)('a' + pos % SIDE_SIZE) << pos / SIDE_SIZE + 1 << std::endl;
 			std::cout << "bot's move: " << (char)('a' + pos % SIDE_SIZE) << pos / SIDE_SIZE + 1 << "\n";
 			repaint_cells(pos, bot_color);
 			bot_has_moves = true;
@@ -173,8 +201,10 @@ class game
 			}
 		if (opponent_has_moves)
 		{
-			char column, row;
-			std::cin >> column >> row;
+			std::string move;
+			std::cin >> move;
+			char column = move[0];
+			char row = move[1];
 			board[SIDE_SIZE * (row - '1') + (column - 'a')] = opponent_color;
 			repaint_cells(SIDE_SIZE * (row - '1') + (column - 'a'), opponent_color);
 			std::cout << "opponent's move: " << column << row << "\n";
@@ -243,7 +273,7 @@ public:
 			std::cout << i + 1 << "  |  ";
 			for (__int8 j = 0; j < SIDE_SIZE; ++j)
 			{
-				_int8 ind = i * SIDE_SIZE + j;
+				__int8 ind = i * SIDE_SIZE + j;
 				switch (board[ind])
 				{
 				case 1:
