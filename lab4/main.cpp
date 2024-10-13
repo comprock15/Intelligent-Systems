@@ -133,18 +133,33 @@ class game
 
 	void make_move()
 	{
-		bot_has_moves = true;
+		bot_has_moves = false;
+		__int8 pos = 0;
 		for (__int8 i = 0; i < BOARD_SIZE; ++i)
 			if (!board[i] && can_make_move(i, bot_color))
 			{
-				board[i] = bot_color;
-				std::cerr << (char)('a' + i % SIDE_SIZE) << i / SIDE_SIZE + 1 << "\n";
-				std::cout << "bot's move: " << (char)('a' + i % SIDE_SIZE) << i / SIDE_SIZE + 1 << "\n";
-				repaint_cells(i, bot_color);
-				return;
+				if (bot_has_moves)
+				{
+					if (weights[i] > weights[pos])
+						pos = i;
+				}
+				else
+				{
+					pos = i;
+				}
+				bot_has_moves = true;
 			}
-		std::cout << "bot doesn't have any moves\n";
-		bot_has_moves = false;
+		if (bot_has_moves)
+		{
+			board[pos] = bot_color;
+			std::cerr << (char)('a' + pos % SIDE_SIZE) << pos / SIDE_SIZE + 1 << "\n";
+			std::cout << "bot's move: " << (char)('a' + pos % SIDE_SIZE) << pos / SIDE_SIZE + 1 << "\n";
+			repaint_cells(pos, bot_color);
+			bot_has_moves = true;
+		}
+		else {
+			std::cout << "bot doesn't have any moves\n";
+		}
 	}
 
 	void parse_move()
