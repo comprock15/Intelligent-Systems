@@ -303,9 +303,11 @@ class game
 					std::array<__int8, BOARD_SIZE> possible_board(_board);
 					possible_board[i] = current_color;
 					repaint_cells(possible_board, i, current_color);
-					score += minimax(possible_board, depth, -current_color, best_move);
+					score = minimax(possible_board, depth, -current_color, best_move);
 				}
 				possible_scores.push(score);
+				//if ((score == 10000 && current_color == 1) || (score == -10000 && current_color == -1))
+				//	break;
 			}
 		}
 
@@ -349,7 +351,7 @@ class game
 			}
 		}
 		//std::cout << "best move: " << +best_move << "\n";
-		return 0;
+		return best_score;
 	}
 
 public:
@@ -375,9 +377,9 @@ public:
 		print_board();
 		while (!game_over())
 		{
-			if (stones_count == 15)
+			if (stones_count == 12)
 			{
-				MAX_DEPTH = 5;
+				MAX_DEPTH = 6;
 			}
 			else if (stones_count == 40)
 			{
