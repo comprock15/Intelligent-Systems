@@ -210,11 +210,23 @@ class game
 		if (opponent_has_moves)
 		{
 			std::string move;
-			std::cin >> move;
-			char column = move[0];
-			char row = move[1];
-			board[SIDE_SIZE * (row - '1') + (column - 'a')] = opponent_color;
-			repaint_cells(board, SIDE_SIZE * (row - '1') + (column - 'a'), opponent_color);
+			__int8 ind;
+			char column, row;
+			while (true)
+			{
+				std::cin >> move;
+				column = move[0];
+				row = move[1];
+				ind = SIDE_SIZE * (row - '1') + (column - 'a');
+				if (ind < 0 || ind >= BOARD_SIZE || board[ind] || !can_make_move(board, ind, opponent_color))
+				{
+					std::cout << "illegal move! try again\n";
+				}
+				else
+					break;
+			}
+			board[ind] = opponent_color;
+			repaint_cells(board, ind, opponent_color);
 			std::cout << "opponent's move: " << column << row << "\n";
 		}
 		else
