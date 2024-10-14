@@ -5,7 +5,7 @@
 
 const __int8 SIDE_SIZE = 8;
 const __int8 BOARD_SIZE = SIDE_SIZE * SIDE_SIZE;
-const __int8 MAX_DEPTH = 6;
+__int8 MAX_DEPTH = 7;
 
 enum regions {a1=99, b1=-8, c1=8, d1=6, b2=-24, c2=-4, d2=-3, c3=7, d3=4, d4=0};
 enum directions {up, upright, right, downright, down, downleft, left, upleft};
@@ -28,6 +28,7 @@ class game
 	__int8 opponent_color = 1;
 	bool bot_has_moves = true;
 	bool opponent_has_moves = true;
+	__int8 stones_count = 4;
 
 	__int8 next_cell(__int8 i, directions dir)
 	{
@@ -245,7 +246,7 @@ class game
 		return true;
 	}
 
-	__int8 game_result(const std::array<__int8, BOARD_SIZE>& _board)
+	__int8 game_result(const std::array<__int8, BOARD_SIZE>& _board, bool print_points = false)
 	{
 		short bot_points = 0;
 		short opponent_points = 0;
@@ -257,8 +258,11 @@ class game
 				++opponent_points;
 		}
 
-		std::cout << "bot's points: " << bot_points << "\n" <<
-			"opponent's points: " << opponent_points << "\n";
+		if (print_points)
+		{
+			std::cout << "bot's points: " << bot_points << "\n" <<
+				"opponent's points: " << opponent_points << "\n";
+		}
 		if (bot_points > opponent_points)
 			return 0;
 		else if (bot_points < opponent_points)
@@ -284,7 +288,6 @@ class game
 
 		std::queue<__int8> possible_moves;
 		std::queue<__int8> possible_scores;
-
 
 
 		for (__int8 i = 0; i < BOARD_SIZE; ++i)
@@ -372,6 +375,14 @@ public:
 		print_board();
 		while (!game_over())
 		{
+			if (stones_count == 15)
+			{
+				MAX_DEPTH = 5;
+			}
+			else if (stones_count == 40)
+			{
+				MAX_DEPTH = 8;
+			}
 			if (bot_turn)
 			{
 				make_move();
@@ -382,6 +393,7 @@ public:
 			}
 			print_board();
 			switch_turn();
+			++stones_count;
 		}
 	}
 
@@ -414,7 +426,7 @@ public:
 
 	__int8 game_result()
 	{
-		return game_result(board);
+		return game_result(board, true);
 	}
 };
 
