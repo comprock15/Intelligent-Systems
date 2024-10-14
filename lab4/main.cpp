@@ -2,6 +2,7 @@
 #include <array>
 #include <string>
 #include <queue>
+#include <stack>
 
 const __int8 SIDE_SIZE = 8;
 const __int8 BOARD_SIZE = SIDE_SIZE * SIDE_SIZE;
@@ -29,6 +30,7 @@ class game
 	bool bot_has_moves = true;
 	bool opponent_has_moves = true;
 	__int8 stones_count = 4;
+	std::stack<std::array<__int8, BOARD_SIZE>> history;
 
 	__int8 next_cell(__int8 i, directions dir)
 	{
@@ -198,6 +200,26 @@ class game
 		}
 	}
 
+	void undo_move()
+	{
+		history.pop();
+		switch_turn();
+		if (history.size() < 1)
+		{
+			std::cout << "can't undo move\n";
+		}
+		else
+		{
+			board = history.top();
+			history.pop();
+			stones_count = 0;
+			for (__int8 i = 0; i < BOARD_SIZE; ++i)
+				stones_count += abs(board[i]);
+			std::cout << "undo move\n";
+		}
+		--stones_count;
+	}
+
 	void parse_move()
 	{
 		opponent_has_moves = false;
@@ -218,6 +240,11 @@ class game
 				column = move[0];
 				row = move[1];
 				ind = SIDE_SIZE * (row - '1') + (column - 'a');
+				if (column == 'u')
+				{
+					undo_move();
+					return;
+				}
 				if (ind < 0 || ind >= BOARD_SIZE || board[ind] || !can_make_move(board, ind, opponent_color))
 				{
 					std::cout << "illegal move! try again\n";
@@ -403,6 +430,7 @@ public:
 			}
 			else
 			{
+				history.push(board);
 				parse_move();
 			}
 			print_board();
