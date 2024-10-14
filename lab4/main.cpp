@@ -266,7 +266,7 @@ class game
 		return 4;
 	}
 
-	unsigned short minimax(std::array<__int8, BOARD_SIZE> _board, __int8 depth, __int8 current_color, __int8& best_move)
+	short minimax(std::array<__int8, BOARD_SIZE> _board, __int8 depth, __int8 current_color, __int8& best_move)
 	{
 		best_move = -1;
 		//std::cout << "minimax depth " << +depth << "\n";
@@ -294,7 +294,7 @@ class game
 			{
 				//std::cout << +i << " " << +_board[i] << "\n";
 				possible_moves.push(i);
-				unsigned short score = weights[i] * current_color;
+				short score = weights[i] * current_color;
 				if (depth < MAX_DEPTH)
 				{
 					std::array<__int8, BOARD_SIZE> possible_board(_board);
@@ -314,7 +314,7 @@ class game
 
 		best_move = possible_moves.front();
 		possible_moves.pop();
-		unsigned short best_score = possible_scores.front();
+		short best_score = possible_scores.front();
 		possible_scores.pop();
 
 		if (current_color == 1)
