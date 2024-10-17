@@ -8,7 +8,7 @@ const __int8 SIDE_SIZE = 8;
 const __int8 BOARD_SIZE = SIDE_SIZE * SIDE_SIZE;
 __int8 MAX_DEPTH = 7;
 
-enum regions {a1=99, b1=-8, c1=8, d1=6, b2=-24, c2=-4, d2=-3, c3=7, d3=4, d4=0};
+enum regions {a1=24, b1=-8, c1=8, d1=6, b2=-24, c2=-4, d2=-3, c3=7, d3=4, d4=0};
 enum directions {up, upright, right, downright, down, downleft, left, upleft};
 
 class game
@@ -342,7 +342,7 @@ class game
 					std::array<__int8, BOARD_SIZE> possible_board(_board);
 					possible_board[i] = current_color;
 					repaint_cells(possible_board, i, current_color);
-					score = minimax(possible_board, depth, -current_color, best_move);
+					score += minimax(possible_board, depth, -current_color, best_move);
 				}
 				possible_scores.push(score);
 				//if ((score == 10000 && current_color == 1) || (score == -10000 && current_color == -1))
@@ -372,6 +372,11 @@ class game
 					best_score = possible_scores.front();
 					best_move = move;
 				}
+				else if (possible_scores.front() == best_score && (rand() / (float)RAND_MAX) < 0.5)
+				{
+					best_score = possible_scores.front();
+					best_move = move;
+				}
 				possible_scores.pop();
 			}
 		}
@@ -386,16 +391,23 @@ class game
 					best_score = possible_scores.front();
 					best_move = move;
 				}
+				else if (possible_scores.front() == best_score && (rand() / (float)RAND_MAX) < 0.5)
+				{
+					best_score = possible_scores.front();
+					best_move = move;
+				}
 				possible_scores.pop();
 			}
 		}
-		//std::cout << "best move: " << +best_move << "\n";
+		//if (depth == 1)
+		//std::cout << "best score: " << +best_score << "\n";
 		return best_score;
 	}
 
 public:
 	game(bool turn) : bot_turn(turn)
 	{
+		srand(time(0));
 		for (__int8 i = 0; i < BOARD_SIZE; ++i)
 			board[i] = 0;
 
