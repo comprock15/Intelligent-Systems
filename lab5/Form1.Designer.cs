@@ -42,9 +42,9 @@ namespace lab5
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(13, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 17);
+            this.label1.Size = new System.Drawing.Size(145, 17);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Факты";
+            this.label1.Text = "Достоверные факты";
             // 
             // listBox1
             // 
@@ -72,6 +72,7 @@ namespace lab5
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox1.Size = new System.Drawing.Size(772, 107);
             this.textBox1.TabIndex = 4;
             // 
@@ -86,11 +87,11 @@ namespace lab5
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(16, 302);
+            this.button1.Location = new System.Drawing.Point(16, 300);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 23);
+            this.button1.Size = new System.Drawing.Size(150, 25);
             this.button1.TabIndex = 6;
-            this.button1.Text = "Вывести";
+            this.button1.Text = "Прямой вывод";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -106,7 +107,7 @@ namespace lab5
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.label1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Продукционная модель";
             this.ResumeLayout(false);
             this.PerformLayout();
 

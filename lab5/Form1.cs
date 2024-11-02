@@ -24,6 +24,11 @@ namespace lab5
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (listBox2.SelectedItem == null)
+            {
+                textBox1.Text = "Сначала выберите целевой факт!";
+                return;
+            }
             HashSet<int> knowledgeBase = new HashSet<int>();
             foreach (int index in listBox1.SelectedIndices)
             {

@@ -35,16 +35,16 @@ class ProductionModel
 
     public class Rule
     {
-        string name;
-        List<int> precondition;
-        int action;
-        float coefficient;
-        string description;
+        private string name;
+        private List<int> preconditions;
+        private int action;
+        private float coefficient;
+        private string description;
 
-        public Rule(string name, List<int> precondition, int action, float coefficient, string description)
+        public Rule(string name, List<int> preconditions, int action, float coefficient, string description)
         {
             this.name = name;
-            this.precondition = precondition;
+            this.preconditions = preconditions;
             this.action = action;
             this.coefficient = coefficient;
             this.description = description;
@@ -54,6 +54,9 @@ class ProductionModel
         {
             return description;
         }
+
+        public List<int> GetPreconditions() => preconditions;
+        public int GetAction() => action;
     }
 
     private List<Fact> facts;
@@ -94,6 +97,47 @@ class ProductionModel
 
     public string ForwardChaining(HashSet<int> knowledgeBase, int target)
     {
-        return "Не удалось вывести факт";
+        List<bool> usedRules = new List<bool>(new bool[rules.Count]);
+        StringBuilder explanation = new StringBuilder();
+        bool anyRulesLeft = true;
+        bool targetReached = knowledgeBase.Contains(target);
+        while (!targetReached && anyRulesLeft)
+        {
+            anyRulesLeft = false;
+            for (int i = 0; i < rules.Count; i++)
+            {
+                if (!usedRules[i])
+                {
+                    bool ruleCanBeUsed = true;
+                    foreach (int f in rules[i].GetPreconditions())
+                    {
+                        if (!knowledgeBase.Contains(f))
+                        {
+                            ruleCanBeUsed = false;
+                            break;
+                        }
+                    }
+                    if (ruleCanBeUsed)
+                    {
+                        anyRulesLeft = true;
+                        knowledgeBase.Add(rules[i].GetAction());
+                        usedRules[i] = true;
+                        explanation.Append(rules[i].ToString() + Environment.NewLine);
+
+                        if (rules[i].GetAction() == target)
+                        {
+                            targetReached = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        if (targetReached)
+            return explanation.ToString();
+        else
+            return "Не удалось вывести факт";
     }
 }
