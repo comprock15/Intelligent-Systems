@@ -36,5 +36,20 @@ namespace lab5
             }
             textBox1.Text = productionModel.ForwardChaining(knowledgeBase, listBox2.SelectedIndex);
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (listBox2.SelectedItem == null)
+            {
+                textBox1.Text = "Сначала выберите целевой факт!";
+                return;
+            }
+            HashSet<int> knowledgeBase = new HashSet<int>();
+            foreach (int index in listBox1.SelectedIndices)
+            {
+                knowledgeBase.Add(index);
+            }
+            textBox1.Text = productionModel.BackwardChaining(knowledgeBase, listBox2.SelectedIndex);
+        }
     }
 }

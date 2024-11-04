@@ -7,10 +7,13 @@ using System.IO;
 
 class ProductionModel
 {
+    private AndOrGraph graph;
+
     public ProductionModel(string facts_filename, string rules_filename)
     {
         LoadFacts(facts_filename);
         LoadRules(rules_filename);
+        graph = new AndOrGraph(facts, rules);
     }
 
     public class Fact
@@ -95,6 +98,7 @@ class ProductionModel
         }
     }
 
+
     public string ForwardChaining(HashSet<int> knowledgeBase, int target)
     {
         List<bool> usedRules = new List<bool>(new bool[rules.Count]);
@@ -142,5 +146,70 @@ class ProductionModel
                 return explanation.ToString();
         else
             return "Не удалось вывести факт";
+    }
+
+    public string BackwardChaining(HashSet<int> knowledgeBase, int target)
+    {
+        return "";
+    }
+
+    private class AndOrGraph
+    {
+        private List<DataVertex> vertices;
+
+        private enum VertexType { AND, OR, SINGLE };
+
+        private class DataVertex
+        {
+            public List<TypeVertex> children;
+
+            public DataVertex()
+            {
+                this.children = new List<TypeVertex>();
+            }
+        }
+        
+        private class TypeVertex
+        {
+            VertexType vertexType;
+            List<DataVertex> children;
+
+            public TypeVertex(VertexType vertexType, List<DataVertex> children)
+            {
+                this.vertexType = vertexType;
+                this.children = children;
+            }
+        }
+
+        public AndOrGraph(List<Fact> facts, List<Rule> rules)
+        {
+            this.vertices = new List<DataVertex>(facts.Count);
+            for (int i = 0; i < facts.Count; ++i)
+                vertices.Add(new DataVertex());
+
+            for (int i = 0; i < vertices.Count; ++i)
+            {
+                foreach (Rule rule in rules)
+                {
+                    if (rule.GetAction() == i)
+                    {
+                        var preconditions = rule.GetPreconditions();
+                        if (preconditions.Count == 1)
+                        {
+                            vertices[i].children.Add(new TypeVertex(
+                                VertexType.SINGLE, 
+                                new List<DataVertex>(){ vertices[preconditions[0]] }));
+                        }
+                        else
+                        {
+                            var temp = new List<DataVertex>();
+                            foreach (var p in preconditions)
+                                temp.Add(vertices[p]);
+                            vertices[i].children.Add(new TypeVertex(VertexType.AND, temp));
+                        }
+                    }
+                }
+            }
+        }
     }
 }
