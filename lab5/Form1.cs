@@ -17,7 +17,7 @@ namespace lab5
         public Form1()
         {
             InitializeComponent();
-            productionModel = new ProductionModel("facts.txt", "rules.txt");
+            productionModel = new ProductionModel("../../reformatter/facts.txt", "../../reformatter/rules.txt");
             listBox1.Items.AddRange(productionModel.GetFacts().ToArray());
             listBox2.Items.AddRange(productionModel.GetFacts().ToArray());
         }

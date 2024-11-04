@@ -136,7 +136,10 @@ class ProductionModel
         }
 
         if (targetReached)
-            return explanation.ToString();
+            if (explanation.ToString() == "")
+                return "Выводимый факт присутствует в достоверных фактах";
+            else
+                return explanation.ToString();
         else
             return "Не удалось вывести факт";
     }
