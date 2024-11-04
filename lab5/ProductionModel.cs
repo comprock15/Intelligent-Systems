@@ -98,7 +98,7 @@ class ProductionModel
         }
     }
 
-
+    // Прямой вывод
     public string ForwardChaining(HashSet<int> knowledgeBase, int target)
     {
         List<bool> usedRules = new List<bool>(new bool[rules.Count]);
@@ -148,34 +148,44 @@ class ProductionModel
             return "Не удалось вывести факт";
     }
 
+    // Обратный вывод
     public string BackwardChaining(HashSet<int> knowledgeBase, int target)
     {
-        return "";
+        if (knowledgeBase.Contains(target))
+            return "Выводимый факт присутствует в достоверных фактах";
+
+        return graph.FindSolution(knowledgeBase, target);
     }
 
     private class AndOrGraph
     {
         private List<DataVertex> vertices;
+        private List<Fact> facts;
+        private List<Rule> rules;
 
         private enum VertexType { AND, OR, SINGLE };
 
         private class DataVertex
         {
+            public int index;
             public List<TypeVertex> children;
 
-            public DataVertex()
+            public DataVertex(int index=0)
             {
+                this.index = index;
                 this.children = new List<TypeVertex>();
             }
         }
         
         private class TypeVertex
         {
-            VertexType vertexType;
-            List<DataVertex> children;
+            public VertexType vertexType;
+            public List<DataVertex> children;
+            public int rule_index;
 
-            public TypeVertex(VertexType vertexType, List<DataVertex> children)
+            public TypeVertex(VertexType vertexType, List<DataVertex> children, int index=0)
             {
+                rule_index = index;
                 this.vertexType = vertexType;
                 this.children = children;
             }
@@ -183,33 +193,156 @@ class ProductionModel
 
         public AndOrGraph(List<Fact> facts, List<Rule> rules)
         {
+            this.facts = facts;
+            this.rules = rules;
             this.vertices = new List<DataVertex>(facts.Count);
             for (int i = 0; i < facts.Count; ++i)
-                vertices.Add(new DataVertex());
+                vertices.Add(new DataVertex(i));
 
             for (int i = 0; i < vertices.Count; ++i)
             {
-                foreach (Rule rule in rules)
+                for (int j = 0; j < rules.Count; ++j)
                 {
-                    if (rule.GetAction() == i)
+                    if (rules[j].GetAction() == i)
                     {
-                        var preconditions = rule.GetPreconditions();
+                        var preconditions = rules[j].GetPreconditions();
                         if (preconditions.Count == 1)
                         {
                             vertices[i].children.Add(new TypeVertex(
                                 VertexType.SINGLE, 
-                                new List<DataVertex>(){ vertices[preconditions[0]] }));
+                                new List<DataVertex>(){ vertices[preconditions[0]] }, 
+                                j));
                         }
                         else
                         {
                             var temp = new List<DataVertex>();
                             foreach (var p in preconditions)
                                 temp.Add(vertices[p]);
-                            vertices[i].children.Add(new TypeVertex(VertexType.AND, temp));
+                            vertices[i].children.Add(new TypeVertex(VertexType.AND, temp, j));
                         }
                     }
                 }
             }
+        }
+
+        public string FindSolution(HashSet<int> knowledgeBase, int target)
+        {
+            List<int> color = new List<int>(new int[vertices.Count]);
+            // 0 - не посещали, 1 - в рассмотрении, 2 - посетили
+
+            //foreach (int i in knowledgeBase)
+            //    color[i] = 2;
+
+            Stack<int> stack = new Stack<int>();
+            stack.Push(target);
+
+            while (stack.Count > 0)
+            {
+                int v = stack.Peek();
+
+                if (color[v] == 2)
+                {
+                    stack.Pop();
+                    continue;
+                }
+
+                if (color[v] == 0)
+                    color[v] = 1;
+
+                if (knowledgeBase.Contains(v) || vertices[v].children.Count == 0)
+                {
+                    color[v] = 2;
+                    stack.Pop();
+                    continue;
+                }
+
+                bool isSolvable = true;
+                bool allChildrenVisited = true;
+                for (int i = 0; i < vertices[v].children.Count; ++i)
+                {
+                    var vchildren = vertices[v].children[i];
+                    isSolvable = true;
+                    foreach (DataVertex tv in vchildren.children)
+                    {
+                        if (color[tv.index] == 2)
+                        {
+                            if (!knowledgeBase.Contains(tv.index))
+                            {
+                                isSolvable = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            allChildrenVisited = false;
+                            stack.Push(tv.index);
+                        } 
+                    }
+                    if (isSolvable && allChildrenVisited)
+                    {
+                        knowledgeBase.Add(v);
+                        break;
+                    }
+                }
+
+                if (allChildrenVisited)
+                {
+                    color[v] = 2;
+                    stack.Pop();
+                }
+            }
+
+            if (!knowledgeBase.Contains(target))
+                return "Не удалось вывести факт";
+
+            return GetExplanation(knowledgeBase, target, color);
+        }
+
+        private string GetExplanation(HashSet<int> knowledgeBase, int target, List<int> color)
+        {
+            List<string> explanation = new List<string>();
+
+            Stack<int> stack = new Stack<int>();
+            stack.Push(target);
+
+            while (stack.Count > 0)
+            {
+                int v = stack.Pop();
+
+                foreach (TypeVertex tv in vertices[v].children)
+                {
+                    bool isSolvable = true;
+                    bool allChildrenVisited = true;
+                    foreach (DataVertex dv in tv.children)
+                    {
+                        if (color[dv.index] != 2)
+                        {
+                            allChildrenVisited = false;
+                            break;
+                        }
+
+                        if (!knowledgeBase.Contains(dv.index))
+                        {
+                            isSolvable = false;
+                            break;
+                        }
+                    }
+
+                    if (isSolvable && allChildrenVisited)
+                    {
+                        explanation.Add(rules[tv.rule_index].ToString());
+
+                        foreach (DataVertex dv in tv.children)
+                        {
+                            stack.Push(dv.index);
+                        }
+                    }
+                }
+                
+            }
+
+            explanation.Reverse();
+            return string.Join(Environment.NewLine, explanation);
         }
     }
 }
