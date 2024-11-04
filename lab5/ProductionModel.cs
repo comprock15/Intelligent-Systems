@@ -34,6 +34,8 @@ class ProductionModel
             //return string.Join(";", name, coefficient, description); 
             return description;
         }
+
+        public string GetDescription() => description;
     }
 
     public class Rule
@@ -43,6 +45,7 @@ class ProductionModel
         private int action;
         private float coefficient;
         private string description;
+        private string rawString;
 
         public Rule(string name, List<int> preconditions, int action, float coefficient, string description)
         {
@@ -56,10 +59,13 @@ class ProductionModel
         public override string ToString()
         {
             return description;
+            //return rawString;
         }
 
         public List<int> GetPreconditions() => preconditions;
         public int GetAction() => action;
+        public string GetDescription() => description;
+        public void SetRawString(string raw) => rawString = raw;
     }
 
     private List<Fact> facts;
@@ -88,12 +94,14 @@ class ProductionModel
         {
             while (!sr.EndOfStream)
             {
-                var line = sr.ReadLine().Split(';');
+                string rawline = sr.ReadLine();
+                var line = rawline.Split(';');
                 rules.Add(new Rule(line[0], 
                                    line[1].Split(',').Select(x => int.Parse(x.Remove(0, 1)) - 1).ToList(),
                                    int.Parse(line[2].Remove(0, 1)) - 1,
                                    float.Parse(line[3]),
                                    line[4]));
+                rules.Last().SetRawString(rawline);
             }
         }
     }
@@ -330,12 +338,13 @@ class ProductionModel
 
                     if (isSolvable && allChildrenVisited)
                     {
-                        explanation.Add(rules[tv.rule_index].ToString());
+                        explanation.Add(rules[tv.rule_index].GetDescription());
 
                         foreach (DataVertex dv in tv.children)
                         {
                             stack.Push(dv.index);
                         }
+                        break;
                     }
                 }
                 

@@ -20,6 +20,7 @@ namespace lab5
             productionModel = new ProductionModel("../../reformatter/facts.txt", "../../reformatter/rules.txt");
             listBox1.Items.AddRange(productionModel.GetFacts().ToArray());
             listBox2.Items.AddRange(productionModel.GetFacts().ToArray());
+            listBox3.Items.AddRange(productionModel.GetRules().ToArray());
         }
 
         private void button1_Click(object sender, EventArgs e)
