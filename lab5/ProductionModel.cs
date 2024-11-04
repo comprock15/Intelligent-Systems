@@ -309,6 +309,7 @@ class ProductionModel
         private string GetExplanation(HashSet<int> knowledgeBase, int target, List<int> color)
         {
             List<string> explanation = new List<string>();
+            HashSet<int> cookedFood = new HashSet<int>();
 
             Stack<int> stack = new Stack<int>();
             stack.Push(target);
@@ -342,7 +343,11 @@ class ProductionModel
 
                         foreach (DataVertex dv in tv.children)
                         {
-                            stack.Push(dv.index);
+                            if (!cookedFood.Contains(dv.index))
+                            {
+                                stack.Push(dv.index);
+                                cookedFood.Add(dv.index);
+                            }
                         }
                         break;
                     }
