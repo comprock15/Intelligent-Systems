@@ -43,9 +43,10 @@ namespace lab5
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Location = new System.Drawing.Point(10, 11);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(145, 17);
+            this.label1.Size = new System.Drawing.Size(113, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Достоверные факты";
             // 
@@ -53,19 +54,20 @@ namespace lab5
             // 
             this.listBox1.BackColor = System.Drawing.SystemColors.Window;
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 16;
-            this.listBox1.Location = new System.Drawing.Point(16, 34);
+            this.listBox1.Location = new System.Drawing.Point(12, 28);
+            this.listBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listBox1.Name = "listBox1";
             this.listBox1.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.listBox1.Size = new System.Drawing.Size(420, 244);
+            this.listBox1.Size = new System.Drawing.Size(316, 199);
             this.listBox1.TabIndex = 2;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(487, 9);
+            this.label2.Location = new System.Drawing.Point(365, 7);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(103, 17);
+            this.label2.Size = new System.Drawing.Size(79, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "Целевой факт";
             // 
@@ -75,30 +77,32 @@ namespace lab5
             | System.Windows.Forms.AnchorStyles.Left)));
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(16, 331);
+            this.textBox1.Location = new System.Drawing.Point(12, 269);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(897, 284);
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox1.Size = new System.Drawing.Size(673, 231);
             this.textBox1.TabIndex = 4;
             // 
             // listBox2
             // 
             this.listBox2.BackColor = System.Drawing.SystemColors.Window;
             this.listBox2.FormattingEnabled = true;
-            this.listBox2.ItemHeight = 16;
-            this.listBox2.Location = new System.Drawing.Point(490, 33);
+            this.listBox2.Location = new System.Drawing.Point(368, 27);
+            this.listBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(420, 244);
+            this.listBox2.Size = new System.Drawing.Size(316, 199);
             this.listBox2.TabIndex = 5;
             // 
             // button1
             // 
             this.button1.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.button1.Location = new System.Drawing.Point(16, 300);
+            this.button1.Location = new System.Drawing.Point(12, 244);
+            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 25);
+            this.button1.Size = new System.Drawing.Size(112, 20);
             this.button1.TabIndex = 6;
             this.button1.Text = "Прямой вывод";
             this.button1.UseVisualStyleBackColor = false;
@@ -107,9 +111,10 @@ namespace lab5
             // button2
             // 
             this.button2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.button2.Location = new System.Drawing.Point(490, 300);
+            this.button2.Location = new System.Drawing.Point(368, 244);
+            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(150, 25);
+            this.button2.Size = new System.Drawing.Size(112, 20);
             this.button2.TabIndex = 7;
             this.button2.Text = "Обратный вывод";
             this.button2.UseVisualStyleBackColor = false;
@@ -122,27 +127,28 @@ namespace lab5
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox3.BackColor = System.Drawing.SystemColors.Window;
             this.listBox3.FormattingEnabled = true;
-            this.listBox3.ItemHeight = 16;
-            this.listBox3.Location = new System.Drawing.Point(964, 34);
+            this.listBox3.Location = new System.Drawing.Point(723, 28);
+            this.listBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(479, 580);
+            this.listBox3.Size = new System.Drawing.Size(360, 472);
             this.listBox3.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(961, 9);
+            this.label3.Location = new System.Drawing.Point(721, 7);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(65, 17);
+            this.label3.Size = new System.Drawing.Size(51, 13);
             this.label3.TabIndex = 9;
             this.label3.Text = "Правила";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.ClientSize = new System.Drawing.Size(1455, 629);
+            this.ClientSize = new System.Drawing.Size(1091, 511);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.listBox3);
             this.Controls.Add(this.button2);
@@ -152,6 +158,7 @@ namespace lab5
             this.Controls.Add(this.label2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.label1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "Продукционная модель";
             this.ResumeLayout(false);

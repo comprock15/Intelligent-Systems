@@ -151,7 +151,10 @@ class ProductionModel
             if (explanation.ToString() == "")
                 return "Выводимый факт присутствует в достоверных фактах";
             else
+            {
+                explanation.Insert(0, "База знаний: " + string.Join(", ", knowledgeBase.Select(i => facts[i])) + Environment.NewLine);
                 return explanation.ToString();
+            }
         else
             return "Не удалось вывести факт";
     }
@@ -171,7 +174,7 @@ class ProductionModel
         private List<Fact> facts;
         private List<Rule> rules;
 
-        private enum VertexType { AND, OR, SINGLE };
+        private enum VertexType { AND, OR, SINGLE }; // вообще тут or и single не используются, всегда чередуются вершины типа И и ИЛИ
 
         private class DataVertex
         {
@@ -185,7 +188,7 @@ class ProductionModel
             }
         }
         
-        private class TypeVertex
+        private class TypeVertex // не понравилось название Type
         {
             public VertexType vertexType;
             public List<DataVertex> children;
@@ -235,7 +238,8 @@ class ProductionModel
 
         public string FindSolution(HashSet<int> knowledgeBase, int target)
         {
-            List<int> color = new List<int>(new int[vertices.Count]);
+            List<int> color = new List<int>(new int[vertices.Count]); // использование цвета "своеобразно". еще не понравилось, что значения цвета - int, а не перечислимый тип
+
             // 0 - не посещали, 1 - в рассмотрении, 2 - посетили
 
             //foreach (int i in knowledgeBase)
@@ -280,7 +284,7 @@ class ProductionModel
                                 break;
                             }
                         }
-                        else
+                        else if (color[tv.index] == 0) // изначально if не было, но с этим условием не зацикливается. вроде сработало
                         {
                             allChildrenVisited = false;
                             stack.Push(tv.index);
@@ -317,6 +321,8 @@ class ProductionModel
             while (stack.Count > 0)
             {
                 int v = stack.Pop();
+                if (cookedFood.Contains(v))
+                    continue;
 
                 foreach (TypeVertex tv in vertices[v].children)
                 {
@@ -340,14 +346,11 @@ class ProductionModel
                     if (isSolvable && allChildrenVisited)
                     {
                         explanation.Add(rules[tv.rule_index].GetDescription());
+                        cookedFood.Add(v);
 
                         foreach (DataVertex dv in tv.children)
                         {
-                            if (!cookedFood.Contains(dv.index))
-                            {
-                                stack.Push(dv.index);
-                                cookedFood.Add(dv.index);
-                            }
+                            stack.Push(dv.index);
                         }
                         break;
                     }
@@ -356,6 +359,7 @@ class ProductionModel
             }
 
             explanation.Reverse();
+            explanation.Insert(0, "База знаний: " + string.Join(", ", knowledgeBase.Select(i => facts[i])) + "\n"); // попросил выводить базу знаний
             return string.Join(Environment.NewLine, explanation);
         }
     }
