@@ -29,22 +29,22 @@ namespace ClipsFormsExample
         public ClipsFormsExample()
         {
             InitializeComponent();
-            synth = new Microsoft.Speech.Synthesis.SpeechSynthesizer();
-            synth.SetOutputToDefaultAudioDevice();
+            //synth = new Microsoft.Speech.Synthesis.SpeechSynthesizer();
+            //synth.SetOutputToDefaultAudioDevice();
 
-            var voices = synth.GetInstalledVoices(System.Globalization.CultureInfo.GetCultureInfoByIetfLanguageTag("ru-RU"));
-            foreach (var v in voices)
-                voicesBox.Items.Add(v.VoiceInfo.Name);
-            if (voicesBox.Items.Count > 0)
-            {
-                voicesBox.SelectedIndex = 0;
-                synth.SelectVoice(voices[0].VoiceInfo.Name);
-            }
+            //var voices = synth.GetInstalledVoices(System.Globalization.CultureInfo.GetCultureInfoByIetfLanguageTag("ru-RU"));
+            //foreach (var v in voices)
+            //    voicesBox.Items.Add(v.VoiceInfo.Name);
+            //if (voicesBox.Items.Count > 0)
+            //{
+            //    voicesBox.SelectedIndex = 0;
+            //    synth.SelectVoice(voices[0].VoiceInfo.Name);
+            //}
 
-            var RecognizerInfo = Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers().Where(ri => ri.Culture.Name == "ru-RU").FirstOrDefault();
-            recogn = new Microsoft.Speech.Recognition.SpeechRecognitionEngine(RecognizerInfo);
-            recogn.SpeechRecognized += Recogn_SpeechRecognized;
-            recogn.SetInputToDefaultAudioDevice();
+            //var RecognizerInfo = Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers().Where(ri => ri.Culture.Name == "ru-RU").FirstOrDefault();
+            //recogn = new Microsoft.Speech.Recognition.SpeechRecognitionEngine(RecognizerInfo);
+            //recogn.SpeechRecognized += Recogn_SpeechRecognized;
+            //recogn.SetInputToDefaultAudioDevice();
         }
 
         private void NewRecognPhrases(List<string> phrases)
@@ -96,7 +96,7 @@ namespace ClipsFormsExample
                 LexemeValue da = (LexemeValue)damf[i];
                 byte[] bytes = Encoding.Default.GetBytes(da.Value);
                 string message = Encoding.UTF8.GetString(bytes);
-                synth.SpeakAsync(message);
+                //synth.SpeakAsync(message);
                 outputBox.Text += message + System.Environment.NewLine;
             }
 
@@ -123,6 +123,11 @@ namespace ClipsFormsExample
 
         private void nextBtn_Click(object sender, EventArgs e)
         {
+            // TODO: next button
+            for (int i = 0; i < outputBox.Lines.Length; i++)
+            {
+                clips.Eval("(assert (" + outputBox.Lines[i] + "))");
+            }
             clips.Run();
             HandleResponse();
         }
@@ -148,7 +153,7 @@ namespace ClipsFormsExample
             if (clipsOpenFileDialog.ShowDialog() == DialogResult.OK)
             {
                 codeBox.Text = System.IO.File.ReadAllText(clipsOpenFileDialog.FileName);
-                Text = "Экспертная система \"Тиндер\" – " + clipsOpenFileDialog.FileName;
+                Text = "Экспертная система \"Составление рациона на день\" – " + clipsOpenFileDialog.FileName;
             }
         }
 
