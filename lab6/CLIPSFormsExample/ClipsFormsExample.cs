@@ -20,11 +20,13 @@ namespace ClipsFormsExample
         /// Распознаватель речи
         /// </summary>
         private Microsoft.Speech.Synthesis.SpeechSynthesizer synth;
-        
+
         /// <summary>
         /// Распознавалка
         /// </summary>
         private Microsoft.Speech.Recognition.SpeechRecognitionEngine recogn;
+
+        private int linesRead = 0;
 
         public ClipsFormsExample()
         {
@@ -114,19 +116,22 @@ namespace ClipsFormsExample
                     outputBox.Text += "Добавлен вариант для распознавания " + message + System.Environment.NewLine;
                 }
             }
-            
-            if(vamf.Count == 0)
+
+            if (vamf.Count == 0)
                 clips.Eval("(assert (clearmessage))");
             else
                 NewRecognPhrases(phrases);
+
+            linesRead = outputBox.Lines.Length;
         }
 
         private void nextBtn_Click(object sender, EventArgs e)
         {
             // TODO: next button
-            for (int i = 0; i < outputBox.Lines.Length; i++)
+            for (int i = linesRead - 1; i < outputBox.Lines.Length; i++)
             {
-                clips.Eval("(assert (" + outputBox.Lines[i] + "))");
+                if (outputBox.Lines[i] != "")
+                    clips.Eval("(assert (available-food " + outputBox.Lines[i] + "))");
             }
             clips.Run();
             HandleResponse();
@@ -146,13 +151,15 @@ namespace ClipsFormsExample
             clips.LoadFromString(codeBox.Text);
 
             clips.Reset();
+
+            linesRead = outputBox.Lines.Length;
         }
 
         private void openFile_Click(object sender, EventArgs e)
         {
             if (clipsOpenFileDialog.ShowDialog() == DialogResult.OK)
             {
-                codeBox.Text = System.IO.File.ReadAllText(clipsOpenFileDialog.FileName);
+                codeBox.Text += System.IO.File.ReadAllText(clipsOpenFileDialog.FileName);
                 Text = "Экспертная система \"Составление рациона на день\" – " + clipsOpenFileDialog.FileName;
             }
         }
