@@ -54,3 +54,6 @@ if __name__ == '__main__':
             for line in f:
                 line = line.rstrip()
                 fout.write(rule_to_clips_format(line) + '\n')
+
+    with open("facts-list.txt", 'w', encoding='utf-8') as fout:
+        fout.write('\n'.join(stored_facts.values()))

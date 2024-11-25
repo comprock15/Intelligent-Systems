@@ -27,6 +27,7 @@ namespace ClipsFormsExample
         private Microsoft.Speech.Recognition.SpeechRecognitionEngine recogn;
 
         private int linesRead = 0;
+        private Color systemTextColor = Color.DarkRed;
 
         public ClipsFormsExample()
         {
@@ -92,7 +93,8 @@ namespace ClipsFormsExample
             MultifieldValue damf = (MultifieldValue)fv["messages"];
             MultifieldValue vamf = (MultifieldValue)fv["answers"];
 
-            outputBox.Text += "Новая итерация : " + System.Environment.NewLine;
+            int startSelectionIndex = outputBox.TextLength;
+            outputBox.Text += System.Environment.NewLine + "Новая итерация : " + System.Environment.NewLine;
             for (int i = 0; i < damf.Count; i++)
             {
                 LexemeValue da = (LexemeValue)damf[i];
@@ -101,6 +103,7 @@ namespace ClipsFormsExample
                 //synth.SpeakAsync(message);
                 outputBox.Text += message + System.Environment.NewLine;
             }
+            outputBox.Text += System.Environment.NewLine;
 
             var phrases = new List<string>();
             if (vamf.Count > 0)
@@ -123,6 +126,11 @@ namespace ClipsFormsExample
                 NewRecognPhrases(phrases);
 
             linesRead = outputBox.Lines.Length;
+
+            outputBox.Select(startSelectionIndex, outputBox.TextLength - startSelectionIndex);
+            outputBox.SelectionColor = systemTextColor;
+            outputBox.SelectionStart = outputBox.TextLength;
+            outputBox.ScrollToCaret();
         }
 
         private void nextBtn_Click(object sender, EventArgs e)
@@ -140,6 +148,7 @@ namespace ClipsFormsExample
         private void resetBtn_Click(object sender, EventArgs e)
         {
             outputBox.Text = "Выполнены команды Clear и Reset." + System.Environment.NewLine;
+
             //  Здесь сохранение в файл, и потом инициализация через него
             clips.Clear();
 
@@ -182,5 +191,26 @@ namespace ClipsFormsExample
             }
         }
 
+        private void factsListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (factsListBox.SelectedIndex == -1)
+                return;
+
+            outputBox.Text += System.Environment.NewLine + factsListBox.SelectedItem.ToString();
+            outputBox.SelectionStart = outputBox.TextLength;
+            outputBox.ScrollToCaret();
+        }
+
+        private void loadFactsButton_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    factsListBox.Items.Clear();
+                    factsListBox.Items.AddRange(System.IO.File.ReadAllLines(dialog.FileName));
+                }
+            }
+        }
     }
 }
