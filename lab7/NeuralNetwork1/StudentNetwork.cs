@@ -54,7 +54,12 @@ namespace NeuralNetwork1
 
         protected override double[] Compute(double[] input)
         {
-            throw new NotImplementedException();
+#if DEBUG
+            if (input.Length != layers[0].Count)
+                throw new ArgumentException("WTF?!!! Не могу подать на вход нейросети массив другой длины!");
+#endif
+            ForwardPropagation(input);
+            return layers[layers.Count - 1].ToArray();
         }
 
         // Сигмоидная функция активации
@@ -80,11 +85,6 @@ namespace NeuralNetwork1
         // Прямой проход
         private void ForwardPropagation(double[] input)
         {
-#if DEBUG
-            if (input.Length != layers[0].Count)
-                throw new ArgumentException("WTF?!!! Не могу подать на вход нейросети массив другой длины!");
-#endif
-
             // Задаем значения нейронов входного слоя (сенсоров)
             for (int neuron = 0; neuron < input.Length; ++neuron)
                 layers[0][neuron] = input[neuron];
@@ -97,10 +97,17 @@ namespace NeuralNetwork1
                     layers[layer][destinationNeuron] = -weights[layer - 1][destinationNeuron][0]; // bias
                     for (int sourceNeuron = 0; sourceNeuron < layers[layer - 1].Count; ++sourceNeuron)
                     {
-                        layers[layer][destinationNeuron] += weights[layer - 1][destinationNeuron][sourceNeuron + 1] * layers[layer - 1][destinationNeuron];
+                        layers[layer][destinationNeuron] += weights[layer - 1][destinationNeuron][sourceNeuron + 1] * layers[layer - 1][sourceNeuron];
                     }
+                    layers[layer][destinationNeuron] = activationFunction(layers[layer][destinationNeuron], 1);
                 }
             }
+        }
+
+        // Обратное распространение ошибки. Именно тут нейросеть обучается
+        private void BackPropagation()
+        {
+
         }
     }
 }
