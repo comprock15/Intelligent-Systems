@@ -176,7 +176,7 @@ namespace NeuralNetwork1
             // А теперь весело считаем значения в нейронах следующих слоёв
             for (int layer = 1; layer < layers.Count; ++layer)
             {
-                for (int destinationNeuron = 0; destinationNeuron < layers[layer].Count; ++destinationNeuron)
+                Parallel.For(0, layers[layer].Count, destinationNeuron =>
                 {
                     layers[layer][destinationNeuron].Output = -weights[layer - 1][destinationNeuron][0]; // bias
                     for (int sourceNeuron = 0; sourceNeuron < layers[layer - 1].Count; ++sourceNeuron)
@@ -184,7 +184,7 @@ namespace NeuralNetwork1
                         layers[layer][destinationNeuron].Output += weights[layer - 1][destinationNeuron][sourceNeuron + 1] * layers[layer - 1][sourceNeuron].Output;
                     }
                     layers[layer][destinationNeuron].Output = activationFunction(layers[layer][destinationNeuron].Output);
-                }
+                });
             }
             // Вообще говоря, это просто перемножение матриц, не пугайтесь
         }
@@ -202,34 +202,34 @@ namespace NeuralNetwork1
             // Считаем ошибки для остальных нейронов
             for (int layer = layers.Count - 2; layer >= 0; --layer)
             {
-                for (int sourceNeuron = 0; sourceNeuron < layers[layer].Count; ++sourceNeuron)
+                Parallel.For(0, layers[layer].Count, sourceNeuron =>
                 {
                     // Суммируем ошибки приходящих к текущему нейрону нейронов следующего слоя
                     double nextLayerNeuronsErrorSum = 0;
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                         nextLayerNeuronsErrorSum += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][sourceNeuron + 1];
                     layers[layer][sourceNeuron].Error = activationFunctionDerivative(layers[layer][sourceNeuron].Output) * nextLayerNeuronsErrorSum;
-                }
+                });
             }
 
             // Наконец пора пересчитывать веса и учить нейросеть
             for (int layer = layers.Count - 2; layer >= 0; --layer)
-            {  
-                for (int sourceNeuron = 0; sourceNeuron < layers[layer].Count; ++sourceNeuron)
+            {
+                // Искренне надеемся, что bias пересчитывается правильно
+                double biasError = 0;
+                for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
+                    biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][0];
+                biasError *= activationFunctionDerivative(-1);
+                for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
+                    weights[layer][destinationNeuron][0] += -learningRate * biasError * layers[layer + 1][destinationNeuron].Output;
+
+                Parallel.For(0, layers[layer].Count, sourceNeuron =>
                 {
-                    // Искренне надеемся, что bias пересчитывается правильно
-                    double biasError = 0;
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                     {
-                        biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][0];
-
                         weights[layer][destinationNeuron][sourceNeuron + 1] += -learningRate * layers[layer][sourceNeuron].Error * layers[layer + 1][destinationNeuron].Output;
                     }
-                    biasError *= activationFunctionDerivative(-1);
-
-                    for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
-                        weights[layer][destinationNeuron][0] += -learningRate * biasError * layers[layer + 1][destinationNeuron].Output;
-                }
+                });
             }
         }
     }
