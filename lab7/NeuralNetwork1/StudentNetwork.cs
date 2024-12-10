@@ -57,7 +57,16 @@ namespace NeuralNetwork1
 
         public override int Train(Sample sample, double acceptableError, bool parallel)
         {
-            throw new NotImplementedException();
+            int iters = 0;
+            do
+            {
+                iters++;
+                ForwardPropagation(sample.input);
+                BackPropagation(sample.Output);
+            }
+            while (lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.Output) > acceptableError && iters < 50);
+
+            return iters;
         }
 
         public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel)
@@ -138,8 +147,8 @@ namespace NeuralNetwork1
                     // Суммируем ошибки приходящих к текущему нейрону нейронов следующего слоя
                     double nextLayerNeuronsErrorSum = 0;
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
-                        nextLayerNeuronsErrorSum += layers[layer + 1][destinationNeuron].Error * weights[layer][sourceNeuron][destinationNeuron + 1];
-                    layers[layers.Count - 1][sourceNeuron].Error = activationFunctionDerivative(layers[layer][sourceNeuron].Output) * nextLayerNeuronsErrorSum;
+                        nextLayerNeuronsErrorSum += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][sourceNeuron + 1];
+                    layers[layer][sourceNeuron].Error = activationFunctionDerivative(layers[layer][sourceNeuron].Output) * nextLayerNeuronsErrorSum;
                 }
             }
 
@@ -152,12 +161,14 @@ namespace NeuralNetwork1
                     double biasError = 0;
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                     {
-                        biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][sourceNeuron][0];
+                        biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][0];
 
                         weights[layer][destinationNeuron][sourceNeuron + 1] += -learningRate * layers[layer][sourceNeuron].Error * layers[layer + 1][destinationNeuron].Output;
                     }
                     biasError *= activationFunctionDerivative(-1);
-                    weights[layer][sourceNeuron][0] += -learningRate * biasError * layers[layer][sourceNeuron].Output;
+
+                    for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
+                        weights[layer][destinationNeuron][0] += -learningRate * biasError * layers[layer + 1][destinationNeuron].Output;
                 }
             }
         }
