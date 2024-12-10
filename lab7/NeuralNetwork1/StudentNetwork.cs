@@ -1,29 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NeuralNetwork1
 {
+    public class Neuron
+    {
+        public double Output { get; set; }
+        public double Error { get; set; }
+    }
+
     public class StudentNetwork : BaseNetwork
     {
         private Random random = new Random();
         private List<List<List<double>>> weights; // [слой источника][нейрон-адресат][нейрон-источник]
-        private List<List<double>> layers; // [слой][нейрон]
+        private List<List<Neuron>> layers; // [слой][нейрон]
 
-        private Func<double, double, double> activationFunction; // Функция активации
+        private Func<double, double> activationFunction; // Функция активации
+        private Func<double, double> activationFunctionDerivative; // Производная функции активации
         private Func<double[], double[], double> lossFunction; // Функция потерь
+
+        private double learningRate = 0.2;
+        private double alpha = 2;
 
         public StudentNetwork(int[] structure)
         {
             activationFunction = Sigmoid;
+            activationFunctionDerivative = SigmoidDerivative;
+
             lossFunction = MSE;
 
             // Добавление нейрончиков
-            layers = new List<List<double>>(structure.Length);
+            layers = new List<List<Neuron>>(structure.Length);
             for (int layer = 0; layer < structure.Length; ++layer)
             {
-                layers.Add(new List<double>(structure[layer]));
+                layers.Add(new List<Neuron>(structure[layer]));
                 for (int neuron = 0; neuron < structure[layer]; ++neuron)
-                    layers[layer].Add(0);
+                    layers[layer].Add(new Neuron());
             }
 
             // Добавление весов
@@ -59,11 +72,13 @@ namespace NeuralNetwork1
                 throw new ArgumentException("WTF?!!! Не могу подать на вход нейросети массив другой длины!");
 #endif
             ForwardPropagation(input);
-            return layers[layers.Count - 1].ToArray();
+            return layers[layers.Count - 1].Select(neuron => neuron.Output).ToArray();
         }
 
         // Сигмоидная функция активации
-        private double Sigmoid(double s, double alpha = 1) => 1.0 / (1 + Math.Exp(-2 * alpha * s));
+        private double Sigmoid(double s) => 1.0 / (1 + Math.Exp(-2 * alpha * s));
+
+        private double SigmoidDerivative(double s) => 2 * 1.0 * s * (1 - s);
 
         // Среднеквадратичная ошибка
         private double MSE(double[] predicted, double[] target)
@@ -87,27 +102,64 @@ namespace NeuralNetwork1
         {
             // Задаем значения нейронов входного слоя (сенсоров)
             for (int neuron = 0; neuron < input.Length; ++neuron)
-                layers[0][neuron] = input[neuron];
+                layers[0][neuron].Output = input[neuron];
 
             // А теперь весело считаем значения в нейронах следующих слоёв
             for (int layer = 1; layer < layers.Count; ++layer)
             {
                 for (int destinationNeuron = 0; destinationNeuron < layers[layer].Count; ++destinationNeuron)
                 {
-                    layers[layer][destinationNeuron] = -weights[layer - 1][destinationNeuron][0]; // bias
+                    layers[layer][destinationNeuron].Output = -weights[layer - 1][destinationNeuron][0]; // bias
                     for (int sourceNeuron = 0; sourceNeuron < layers[layer - 1].Count; ++sourceNeuron)
                     {
-                        layers[layer][destinationNeuron] += weights[layer - 1][destinationNeuron][sourceNeuron + 1] * layers[layer - 1][sourceNeuron];
+                        layers[layer][destinationNeuron].Output += weights[layer - 1][destinationNeuron][sourceNeuron + 1] * layers[layer - 1][sourceNeuron].Output;
                     }
-                    layers[layer][destinationNeuron] = activationFunction(layers[layer][destinationNeuron], 1);
+                    layers[layer][destinationNeuron].Output = activationFunction(layers[layer][destinationNeuron].Output);
                 }
             }
+            // Вообще говоря, это просто перемножение матриц, не пугайтесь
         }
 
         // Обратное распространение ошибки. Именно тут нейросеть обучается
-        private void BackPropagation()
+        private void BackPropagation(double[] actual)
         {
+            // Считаем ошибки для нейронов выходного слоя
+            for (int neuron = 0; neuron < layers[layers.Count - 1].Count; ++neuron)
+            {
+                // [-2 * alpha * y_i * (1 - y_i)] * (d_i - y_i)
+                layers[layers.Count - 1][neuron].Error = activationFunctionDerivative(layers[layers.Count - 1][neuron].Output) * (actual[neuron] - layers[layers.Count - 1][neuron].Output);
+            }
 
+            // Считаем ошибки для остальных нейронов
+            for (int layer = layers.Count - 2; layer >= 0; --layer)
+            {
+                for (int sourceNeuron = 0; sourceNeuron < layers[layer].Count; ++sourceNeuron)
+                {
+                    // Суммируем ошибки приходящих к текущему нейрону нейронов следующего слоя
+                    double nextLayerNeuronsErrorSum = 0;
+                    for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
+                        nextLayerNeuronsErrorSum += layers[layer + 1][destinationNeuron].Error * weights[layer][sourceNeuron][destinationNeuron + 1];
+                    layers[layers.Count - 1][sourceNeuron].Error = activationFunctionDerivative(layers[layer][sourceNeuron].Output) * nextLayerNeuronsErrorSum;
+                }
+            }
+
+            // Наконец пора пересчитывать веса и учить нейросеть
+            for (int layer = layers.Count - 2; layer >= 0; --layer)
+            {  
+                for (int sourceNeuron = 0; sourceNeuron < layers[layer].Count; ++sourceNeuron)
+                {
+                    // Искренне надеемся, что bias пересчитывается правильно
+                    double biasError = 0;
+                    for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
+                    {
+                        biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][sourceNeuron][0];
+
+                        weights[layer][destinationNeuron][sourceNeuron + 1] += -learningRate * layers[layer][sourceNeuron].Error * layers[layer + 1][destinationNeuron].Output;
+                    }
+                    biasError *= activationFunctionDerivative(-1);
+                    weights[layer][sourceNeuron][0] += -learningRate * biasError * layers[layer][sourceNeuron].Output;
+                }
+            }
         }
     }
 }
