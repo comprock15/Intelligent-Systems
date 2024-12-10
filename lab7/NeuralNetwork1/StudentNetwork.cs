@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace NeuralNetwork1
 {
@@ -12,6 +14,8 @@ namespace NeuralNetwork1
 
     public class StudentNetwork : BaseNetwork
     {
+        public Stopwatch stopWatch = new Stopwatch();
+
         private Random random = new Random();
         private List<List<List<double>>> weights; // [слой источника][нейрон-адресат][нейрон-источник]
         private List<List<Neuron>> layers; // [слой][нейрон]
@@ -20,7 +24,7 @@ namespace NeuralNetwork1
         private Func<double, double> activationFunctionDerivative; // Производная функции активации
         private Func<double[], double[], double> lossFunction; // Функция потерь
 
-        private double learningRate = 0.2;
+        private double learningRate = 0.02;
         private double alpha = 2;
 
         public StudentNetwork(int[] structure)
@@ -58,20 +62,76 @@ namespace NeuralNetwork1
         public override int Train(Sample sample, double acceptableError, bool parallel)
         {
             int iters = 0;
-            do
+
+            while(true)
             {
                 iters++;
                 ForwardPropagation(sample.input);
-                BackPropagation(sample.Output);
+                if (lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.Output) > acceptableError && iters < 50)
+                    BackPropagation(sample.Output);
+                else
+                    break;
             }
-            while (lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.Output) > acceptableError && iters < 50);
 
             return iters;
         }
 
+        double TrainOnSample(Sample sample, double acceptableError)
+        {
+            ForwardPropagation(sample.input);
+            double loss = lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.Output);
+            if (loss > acceptableError)
+                BackPropagation(sample.Output);
+            return loss;
+        }
+
         public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel)
         {
-            throw new NotImplementedException();
+            int totalSamples = epochsCount * samplesSet.Count;
+            int processedSamples = 0;
+            double errorSum = 0;
+
+            //  Сначала надо сконструировать массивы входов и выходов
+            double[][] inputs = new double[samplesSet.Count][];
+            double[][] outputs = new double[samplesSet.Count][];
+
+            //  Теперь массивы из samplesSet группируем в inputs и outputs
+            for (int i = 0; i < samplesSet.Count; ++i)
+            {
+                inputs[i] = samplesSet[i].input;
+                outputs[i] = samplesSet[i].Output;
+            }
+
+            //  Текущий счётчик эпох
+            int epoch_to_run = 0;
+
+            double error = double.PositiveInfinity;
+
+            stopWatch.Restart();
+
+            while (epoch_to_run < epochsCount && error > acceptableError)
+            {
+                epoch_to_run++;
+
+                for (int i = 0; i < inputs.Length; ++i)
+                {
+                    errorSum += TrainOnSample(samplesSet[i], acceptableError);
+
+                    if (i % 100 == 0)
+                    {
+                        error = errorSum / processedSamples;
+                        OnTrainProgress((epoch_to_run * 1.0) / epochsCount, error, stopWatch.Elapsed);
+                    }
+                }
+                error = errorSum / processedSamples;
+                OnTrainProgress((epoch_to_run * 1.0) / epochsCount, error, stopWatch.Elapsed);
+            }
+
+            OnTrainProgress(1.0, error, stopWatch.Elapsed);
+
+            stopWatch.Stop();
+
+            return error;
         }
 
         protected override double[] Compute(double[] input)
