@@ -24,8 +24,8 @@ namespace NeuralNetwork1
         private Func<double, double> activationFunctionDerivative; // Производная функции активации
         private Func<double[], double[], double> lossFunction; // Функция потерь
 
-        private double learningRate = 0.02;
-        private double alpha = 2;
+        private double learningRate = 0.5;
+        private double alpha = 0.1;
 
         public StudentNetwork(int[] structure)
         {
@@ -91,17 +91,6 @@ namespace NeuralNetwork1
             int processedSamples = 0;
             double errorSum = 0;
 
-            //  Сначала надо сконструировать массивы входов и выходов
-            double[][] inputs = new double[samplesSet.Count][];
-            double[][] outputs = new double[samplesSet.Count][];
-
-            //  Теперь массивы из samplesSet группируем в inputs и outputs
-            for (int i = 0; i < samplesSet.Count; ++i)
-            {
-                inputs[i] = samplesSet[i].input;
-                outputs[i] = samplesSet[i].Output;
-            }
-
             //  Текущий счётчик эпох
             int epoch_to_run = 0;
 
@@ -113,18 +102,19 @@ namespace NeuralNetwork1
             {
                 epoch_to_run++;
 
-                for (int i = 0; i < inputs.Length; ++i)
+                for (int i = 0; i < samplesSet.Count; ++i)
                 {
                     errorSum += TrainOnSample(samplesSet[i], acceptableError);
+                    ++processedSamples;
 
                     if (i % 100 == 0)
                     {
                         error = errorSum / processedSamples;
-                        OnTrainProgress((epoch_to_run * 1.0) / epochsCount, error, stopWatch.Elapsed);
+                        OnTrainProgress((processedSamples * 1.0) / totalSamples, error, stopWatch.Elapsed);
                     }
                 }
                 error = errorSum / processedSamples;
-                OnTrainProgress((epoch_to_run * 1.0) / epochsCount, error, stopWatch.Elapsed);
+                OnTrainProgress((processedSamples * 1.0) / totalSamples, error, stopWatch.Elapsed);
             }
 
             OnTrainProgress(1.0, error, stopWatch.Elapsed);
@@ -147,7 +137,7 @@ namespace NeuralNetwork1
         // Сигмоидная функция активации
         private double Sigmoid(double s) => 1.0 / (1 + Math.Exp(-2 * alpha * s));
 
-        private double SigmoidDerivative(double s) => 2 * 1.0 * s * (1 - s);
+        private double SigmoidDerivative(double s) => 2 * alpha * s * (1 - s);
 
         // Среднеквадратичная ошибка
         private double MSE(double[] predicted, double[] target)
@@ -205,7 +195,7 @@ namespace NeuralNetwork1
                 Parallel.For(0, layers[layer].Count, sourceNeuron =>
                 {
                     // Суммируем ошибки приходящих к текущему нейрону нейронов следующего слоя
-                    double nextLayerNeuronsErrorSum = 0;
+                    double nextLayerNeuronsErrorSum = 0.0;
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                         nextLayerNeuronsErrorSum += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][sourceNeuron + 1];
                     layers[layer][sourceNeuron].Error = activationFunctionDerivative(layers[layer][sourceNeuron].Output) * nextLayerNeuronsErrorSum;
@@ -216,18 +206,18 @@ namespace NeuralNetwork1
             for (int layer = layers.Count - 2; layer >= 0; --layer)
             {
                 // Искренне надеемся, что bias пересчитывается правильно
-                double biasError = 0;
+                double biasError = 0.0;
                 for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                     biasError += layers[layer + 1][destinationNeuron].Error * weights[layer][destinationNeuron][0];
                 biasError *= activationFunctionDerivative(-1);
-                for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
-                    weights[layer][destinationNeuron][0] += -learningRate * biasError * layers[layer + 1][destinationNeuron].Output;
+                Parallel.For(0, layers[layer + 1].Count, destinationNeuron =>
+                    weights[layer][destinationNeuron][0] = -learningRate * biasError * (-1));
 
                 Parallel.For(0, layers[layer].Count, sourceNeuron =>
                 {
                     for (int destinationNeuron = 0; destinationNeuron < layers[layer + 1].Count; ++destinationNeuron)
                     {
-                        weights[layer][destinationNeuron][sourceNeuron + 1] += -learningRate * layers[layer][sourceNeuron].Error * layers[layer + 1][destinationNeuron].Output;
+                        weights[layer][destinationNeuron][sourceNeuron + 1] += learningRate * layers[layer + 1][destinationNeuron].Error * layers[layer][sourceNeuron].Output;
                     }
                 });
             }
