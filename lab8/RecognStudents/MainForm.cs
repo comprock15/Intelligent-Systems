@@ -110,7 +110,7 @@ namespace AForge.WindowsForms
             if (!Directory.Exists(saveImageDir))
                 Directory.CreateDirectory(saveImageDir);
 
-            controller.processor.network = new AForgeNet(new int[] { 1000, 1300, 500, 8 });
+            controller.processor.network = new StudentNetwork(new int[] { 1000, 1300, 500, 8 });
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
