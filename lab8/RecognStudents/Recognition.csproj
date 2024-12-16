@@ -38,11 +38,17 @@
     <Reference Include="AForge">
       <HintPath>AForge\AForge.dll</HintPath>
     </Reference>
+    <Reference Include="AForge.Genetic, Version=2.2.4.0, Culture=neutral, PublicKeyToken=4336634eeb41b69b, processorArchitecture=MSIL">
+      <HintPath>packages\AForge.Genetic.2.2.5\lib\AForge.Genetic.dll</HintPath>
+    </Reference>
     <Reference Include="AForge.Imaging">
       <HintPath>AForge\AForge.Imaging.dll</HintPath>
     </Reference>
     <Reference Include="AForge.Math">
       <HintPath>AForge\AForge.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Neuro, Version=2.2.5.0, Culture=neutral, PublicKeyToken=2094f4ea39731d4f, processorArchitecture=MSIL">
+      <HintPath>packages\AForge.Neuro.2.2.5\lib\AForge.Neuro.dll</HintPath>
     </Reference>
     <Reference Include="AForge.Video">
       <HintPath>AForge\AForge.Video.dll</HintPath>
@@ -63,13 +69,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AForgeNet.cs" />
+    <Compile Include="BaseNetwork.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="DatasetGetter.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Neural.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Processor.cs" />

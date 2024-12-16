@@ -223,6 +223,14 @@ namespace AForge.WindowsForms
             return rez;
         }
 
+
+        public static Bitmap ToGrayScale(Bitmap bitmap)
+        {
+            AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
+            Bitmap uProcessed = grayFilter.Apply(bitmap);
+            return uProcessed;
+        }
+
     }
 }
 

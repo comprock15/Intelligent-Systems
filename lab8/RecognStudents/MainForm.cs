@@ -20,7 +20,13 @@ namespace AForge.WindowsForms
 
     public partial class MainForm : Form
     {
-        String saveImageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+        /// <summary>
+        /// Генератор изображений (образов)
+        /// </summary>
+        DatasetGetter generator = new DatasetGetter();
+        BaseNetwork currentNetwork = new AForgeNet(new int[] { 1000, 1300, 500, 8 });
+        SamplesSet samples;
+        string saveImageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
 
         /// <summary>
         /// Класс, реализующий всю логику работы
@@ -199,7 +205,7 @@ namespace AForge.WindowsForms
                 case Keys.D: controller.settings.incLeft(); Debug.WriteLine("Right!"); break;
                 case Keys.Q: controller.settings.border++; Debug.WriteLine("Plus!"); break;
                 case Keys.E: controller.settings.border--; Debug.WriteLine("Minus!"); break;
-                case Keys.F:
+                case Keys.F: // Пытаемся сохранить фото с камеры
                         try
                         {
                             int fileCount = Directory.GetFiles(saveImageDir).Length;
@@ -224,6 +230,13 @@ namespace AForge.WindowsForms
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             controller.settings.processImg = checkBox1.Checked;
+        }
+
+        private void trainButton_Click(object sender, EventArgs e)
+        {
+            if (samples is null)
+                samples = generator.GetDataset();
+            currentNetwork.TrainOnDataSet(samples, 10, 0.01, true);
         }
     }
 }
