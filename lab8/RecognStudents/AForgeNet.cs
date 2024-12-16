@@ -107,7 +107,11 @@ namespace AForge.WindowsForms
 
         protected override double[] Compute(double[] input)
         {
-            return network.Compute(input);
+            var output = network.Compute(input);
+#if DEBUG
+            Debug.WriteLine(string.Join(" ", output));
+#endif
+            return output;
         }
     }
 }

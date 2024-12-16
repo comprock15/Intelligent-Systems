@@ -15,7 +15,7 @@ namespace AForge.WindowsForms
 
     public class DatasetGetter
     {
-        public string datasetPath = "..\\..\\Dataset";
+        public string datasetPath = "..\\..\\Dataset-";
 
         /// <summary>
         /// Бинарное представление образа
@@ -103,15 +103,15 @@ namespace AForge.WindowsForms
                 foreach (string filename in Directory.GetFiles(subdir))
                 {
                     Image img = Image.FromFile(filename);
-                    Bitmap bitmap = MagicEye.ToGrayScale(new Bitmap(img));
-                    samples.AddSample(ProcessToSample(bitmap, figure));
+                    Bitmap bitmap = MagicEye.ToBinary(new Bitmap(img));
+                    samples.AddSample(ProcessToSample(bitmap, FigureCount, figure));
                 }
             }
 
             return samples;
         }
 
-        public FigureType GetClassByName(string name)
+        public static FigureType GetClassByName(string name)
         {
             FigureType figure = FigureType.Undef;
             switch (name)
@@ -146,7 +146,33 @@ namespace AForge.WindowsForms
             return figure;
         }
 
-        public Sample ProcessToSample(Bitmap bitmap, FigureType figureType)
+        public static string GetNameByClass(FigureType figureType)
+        {
+            switch (figureType)
+            {
+                case FigureType.Beta:
+                    return "Бета!";
+                case FigureType.Chi:
+                    return "Хи!";
+                case FigureType.Eta:
+                    return "Эта!";
+                case FigureType.Iota:
+                    return "Йота!";
+                case FigureType.Nu:
+                    return "Ню!";
+                case FigureType.Omicron:
+                    return "Омикрон!";
+                case FigureType.Psi:
+                    return "Пси!";
+                case FigureType.Tau:
+                    return "Тау!";
+                default:
+                    break;
+            }
+            return "Не знаю...";
+        }
+
+        public static Sample ProcessToSample(Bitmap bitmap, int figureCount, FigureType figureType=FigureType.Undef)
         {
             short size = 500;
             double[] input = new double[size + size];
@@ -160,7 +186,7 @@ namespace AForge.WindowsForms
                         input[i] += 1;
                         input[size + j] += 1;
                     }
-            return new Sample(input, FigureCount, figureType);
+            return new Sample(input, figureCount, figureType);
         }
     }
 

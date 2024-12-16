@@ -24,7 +24,6 @@ namespace AForge.WindowsForms
         /// Генератор изображений (образов)
         /// </summary>
         DatasetGetter generator = new DatasetGetter();
-        BaseNetwork currentNetwork = new AForgeNet(new int[] { 1000, 1300, 500, 8 });
         SamplesSet samples;
         string saveImageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
 
@@ -110,6 +109,8 @@ namespace AForge.WindowsForms
 
             if (!Directory.Exists(saveImageDir))
                 Directory.CreateDirectory(saveImageDir);
+
+            controller.processor.network = new AForgeNet(new int[] { 1000, 1300, 500, 8 });
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -236,7 +237,8 @@ namespace AForge.WindowsForms
         {
             if (samples is null)
                 samples = generator.GetDataset();
-            currentNetwork.TrainOnDataSet(samples, 10, 0.01, true);
+            var err = controller.processor.network.TrainOnDataSet(samples, 5, 0.01, true);
+            errorLabel.Text = $"Ошибка: {err}";
         }
     }
 }

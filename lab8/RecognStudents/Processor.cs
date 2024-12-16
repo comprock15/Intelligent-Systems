@@ -65,6 +65,7 @@ namespace AForge.WindowsForms
 
     internal class MagicEye
     {
+        public BaseNetwork network;
         /// <summary>
         /// Обработанное изображение
         /// </summary>
@@ -140,8 +141,8 @@ namespace AForge.WindowsForms
 
             if (settings.processImg)
             {
-             
-                string info = processSample(ref uProcessed);
+                //string info = processSample(ref uProcessed);
+                string info = Predict(ref uProcessed);
                 Font f = new Font(FontFamily.GenericSansSerif, 20);
                 g.DrawString(info, f, Brushes.Black, 30, 30);
             }
@@ -223,11 +224,30 @@ namespace AForge.WindowsForms
             return rez;
         }
 
-
-        public static Bitmap ToGrayScale(Bitmap bitmap)
+        public string Predict(ref Imaging.UnmanagedImage unmanaged)
         {
+            Sample sample = DatasetGetter.ProcessToSample(unmanaged.ToManagedImage(), 8);
+            FigureType figure = network.Predict(sample);
+            return DatasetGetter.GetNameByClass(figure);
+        }
+
+
+        public static Bitmap ToBinary(Bitmap bitmap)
+        {
+            Bitmap uProcessed = bitmap;
+
+            // В оттенки серого
             AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
-            Bitmap uProcessed = grayFilter.Apply(bitmap);
+            uProcessed = grayFilter.Apply(bitmap);
+
+            //AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(200, 200);
+            //uProcessed = scaleDown.Apply(uProcessed);
+
+            // В черно-белое
+            AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
+            threshldFilter.PixelBrightnessDifferenceLimit = 0.15f; //settings.differenceLim;
+            threshldFilter.ApplyInPlace(uProcessed);
+
             return uProcessed;
         }
 

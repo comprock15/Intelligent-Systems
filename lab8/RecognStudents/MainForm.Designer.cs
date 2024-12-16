@@ -50,6 +50,7 @@
             this.PlayButton = new System.Windows.Forms.Button();
             this.resolutionsBox = new System.Windows.Forms.ComboBox();
             this.trainButton = new System.Windows.Forms.Button();
+            this.errorLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.originalImageBox)).BeginInit();
             this.panel1.SuspendLayout();
@@ -315,11 +316,22 @@
             this.trainButton.UseVisualStyleBackColor = true;
             this.trainButton.Click += new System.EventHandler(this.trainButton_Click);
             // 
+            // errorLabel
+            // 
+            this.errorLabel.AutoSize = true;
+            this.errorLabel.Location = new System.Drawing.Point(514, 683);
+            this.errorLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.errorLabel.Name = "errorLabel";
+            this.errorLabel.Size = new System.Drawing.Size(65, 17);
+            this.errorLabel.TabIndex = 36;
+            this.errorLabel.Text = "Ошибка:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1297, 913);
+            this.Controls.Add(this.errorLabel);
             this.Controls.Add(this.trainButton);
             this.Controls.Add(this.resolutionsBox);
             this.Controls.Add(this.controlPanel);
@@ -376,6 +388,7 @@
         private System.Windows.Forms.ComboBox resolutionsBox;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button trainButton;
+        private System.Windows.Forms.Label errorLabel;
     }
 }
 
