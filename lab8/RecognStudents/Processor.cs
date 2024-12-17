@@ -80,7 +80,8 @@ namespace AForge.WindowsForms
         /// </summary>
         public Settings settings = new Settings();
 
-
+        private int framesCount = 0;
+        private string lastPrediction = "Ничего";
 
         public MagicEye()
         {
@@ -88,6 +89,7 @@ namespace AForge.WindowsForms
 
         public bool ProcessImage(Bitmap bitmap)
         {
+            framesCount++;
             // На вход поступает необработанное изображение с веб-камеры
 
             //  Минимальная сторона изображения (обычно это высота)
@@ -142,9 +144,13 @@ namespace AForge.WindowsForms
             if (settings.processImg)
             {
                 //string info = processSample(ref uProcessed);
-                string info = Predict(ref uProcessed);
+                if (framesCount % 5 == 0)
+                {
+                    lastPrediction = Predict(ref uProcessed);
+                    framesCount = 0;
+                }
                 Font f = new Font(FontFamily.GenericSansSerif, 20);
-                g.DrawString(info, f, Brushes.Black, 30, 30);
+                g.DrawString(lastPrediction, f, Brushes.Black, 30, 30);
             }
 
             //  Получить значения сенсоров из обработанного изображения размера 100x100
@@ -231,6 +237,11 @@ namespace AForge.WindowsForms
             return DatasetGetter.GetNameByClass(figure);
         }
 
+        public double TrainNet(SamplesSet samples, int epochsCount, double acceptableError, bool parallel)
+        {
+            var err = network.TrainOnDataSet(samples, epochsCount, acceptableError, parallel);
+            return err;
+        }
 
         public static Bitmap ToBinary(Bitmap bitmap)
         {
@@ -250,6 +261,57 @@ namespace AForge.WindowsForms
 
             return uProcessed;
         }
+
+        //public static Bitmap ToBinary(Bitmap bitmap)
+        //{
+        //    Bitmap uProcessed = bitmap;
+
+        //    // В оттенки серого
+        //    AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
+        //    uProcessed = grayFilter.Apply(bitmap);
+
+        //    AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(200, 200);
+        //    uProcessed = scaleDown.Apply(uProcessed);
+
+        //    // В черно-белое
+        //    AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
+        //    threshldFilter.PixelBrightnessDifferenceLimit = 0.15f; //settings.differenceLim;
+        //    threshldFilter.ApplyInPlace(uProcessed);
+
+        //    //// Обрезка
+        //    //int lx = bitmap.Width;
+        //    //int ly = bitmap.Height;
+        //    //int rx = 0;
+        //    //int ry = 0;
+        //    //for (int i = 0; i < uProcessed.Height; ++i)
+        //    //{
+        //    //    for (int j = 0; j < uProcessed.Width; ++j)
+        //    //    {
+        //    //        if (uProcessed.GetPixel(i, j).R == 0) // Черный
+        //    //        {
+        //    //            if (j < lx)
+        //    //                lx = j;
+        //    //            if (j > rx)
+        //    //                rx = j;
+        //    //            if (i < ly)
+        //    //                ly = i;
+        //    //            if (i > ry)
+        //    //                ry = i;
+        //    //        }
+        //    //    }
+        //    //}
+
+        //    //// Обрезаем края, оставляя только центральные блобчики
+        //    //if (rx != 0)
+        //    //{
+        //    //    AForge.Imaging.Filters.Crop cropFilter = new AForge.Imaging.Filters.Crop(new Rectangle(lx, ly, rx - lx, ry - ly));
+        //    //    uProcessed = cropFilter.Apply(uProcessed);
+        //    //}
+
+
+
+        //    return uProcessed;
+        //}
 
     }
 }

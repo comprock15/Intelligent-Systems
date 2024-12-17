@@ -179,43 +179,43 @@ namespace AForge.WindowsForms
             for (int i = 0; i < size; i++)
                 input[i] = 0;
 
-            //for (int i = 0; i < size; i++)
-            //    for (int j = 0; j < size; j++)
-            //        if (bitmap.GetPixel(i, j).R == 0)
-            //        {
-            //            input[i] += 1;
-            //            input[size + j] += 1;
-            //        }
-
             for (int i = 0; i < size; i++)
-            {
-                bool prevBlack = bitmap.GetPixel(i, 0).R == 0;
-                for (int j = 1; j < size; j++)
-                {
-                    Color pixel = bitmap.GetPixel(i, j);
-                    //Console.WriteLine(pixel);
-                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+                for (int j = 0; j < size; j++)
+                    if (bitmap.GetPixel(i, j).R == 0)
                     {
                         input[i] += 1;
-                        prevBlack = !prevBlack;
-                    }
-                }
-            }
-
-            for (int j = 0; j < size; j++)
-            {
-                bool prevBlack = bitmap.GetPixel(0, j).R == 0;
-                for (int i = 1; i < size; i++)
-                {
-                    Color pixel = bitmap.GetPixel(i, j);
-                    //Console.WriteLine(pixel);
-                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
-                    {
                         input[size + j] += 1;
-                        prevBlack = !prevBlack;
                     }
-                }
-            }
+
+            //for (int i = 0; i < size; i++)
+            //{
+            //    bool prevBlack = bitmap.GetPixel(i, 0).R == 0;
+            //    for (int j = 1; j < size; j++)
+            //    {
+            //        Color pixel = bitmap.GetPixel(i, j);
+            //        //Console.WriteLine(pixel);
+            //        if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+            //        {
+            //            input[i] += 1;
+            //            prevBlack = !prevBlack;
+            //        }
+            //    }
+            //}
+
+            //for (int j = 0; j < size; j++)
+            //{
+            //    bool prevBlack = bitmap.GetPixel(0, j).R == 0;
+            //    for (int i = 1; i < size; i++)
+            //    {
+            //        Color pixel = bitmap.GetPixel(i, j);
+            //        //Console.WriteLine(pixel);
+            //        if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+            //        {
+            //            input[size + j] += 1;
+            //            prevBlack = !prevBlack;
+            //        }
+            //    }
+            //}
             return new Sample(input, figureCount, figureType);
         }
     }
