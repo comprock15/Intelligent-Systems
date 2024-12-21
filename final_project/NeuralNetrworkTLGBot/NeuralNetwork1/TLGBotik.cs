@@ -41,7 +41,8 @@ namespace NeuralNetwork1
         {
             //  Тут очень простое дело - банально отправляем назад сообщения
             var message = update.Message;
-            formUpdater("Тип сообщения : " + message.Type.ToString());
+            formUpdater("ID:" + message.Chat.Id.ToString() + " Тип сообщения: " + message.Type.ToString());
+            
 
             //  Получение файла (картинки)
             if (message.Type == Telegram.Bot.Types.Enums.MessageType.Photo)
@@ -73,15 +74,16 @@ namespace NeuralNetwork1
                 formUpdater("Picture recognized!");
                 return;
             }
-
-            if (message == null || message.Type != MessageType.Text) return;
-            if(message.Text == "Authors")
+            else if(message.Type == MessageType.Text)
             {
-                string authors = "Гаянэ Аршакян, Луспарон Тызыхян, Дамир Казеев, Роман Хыдыров, Владимир Садовский, Анастасия Аскерова, Константин Бервинов, и Борис Трикоз (но он уже спать ушел) и молчаливый Даниил Ярошенко, а год спустя ещё Иванченко Вячеслав";
-                botik.SendTextMessageAsync(message.Chat.Id, "Авторы проекта : " + authors);
+                botik.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
+                formUpdater(message.Text);
             }
-            botik.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
-            formUpdater(message.Text);
+            else
+            {
+                botik.SendTextMessageAsync(message.Chat.Id, "Сделаю вид, что я этого не видел");
+            }
+
             return;
         }
         Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
