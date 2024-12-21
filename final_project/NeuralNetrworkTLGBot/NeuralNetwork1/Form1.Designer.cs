@@ -171,9 +171,9 @@
             this.groupBox1.Controls.Add(label4);
             this.groupBox1.Controls.Add(label2);
             this.groupBox1.Location = new System.Drawing.Point(685, 49);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(392, 368);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
@@ -197,7 +197,7 @@
             "Студенческий персептрон",
             "Accord.Net Perseptron"});
             this.netTypeBox.Location = new System.Drawing.Point(221, 23);
-            this.netTypeBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.netTypeBox.Margin = new System.Windows.Forms.Padding(4);
             this.netTypeBox.Name = "netTypeBox";
             this.netTypeBox.Size = new System.Drawing.Size(160, 24);
             this.netTypeBox.TabIndex = 20;
@@ -209,7 +209,7 @@
             this.parallelCheckBox.Checked = true;
             this.parallelCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.parallelCheckBox.Location = new System.Drawing.Point(45, 299);
-            this.parallelCheckBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.parallelCheckBox.Margin = new System.Windows.Forms.Padding(4);
             this.parallelCheckBox.Name = "parallelCheckBox";
             this.parallelCheckBox.Size = new System.Drawing.Size(179, 21);
             this.parallelCheckBox.TabIndex = 19;
@@ -219,16 +219,16 @@
             // netStructureBox
             // 
             this.netStructureBox.Location = new System.Drawing.Point(223, 54);
-            this.netStructureBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.netStructureBox.Margin = new System.Windows.Forms.Padding(4);
             this.netStructureBox.Name = "netStructureBox";
             this.netStructureBox.Size = new System.Drawing.Size(159, 22);
             this.netStructureBox.TabIndex = 18;
-            this.netStructureBox.Text = "400;500;20;2";
+            this.netStructureBox.Text = "200;300;20;8";
             // 
             // recreateNetButton
             // 
             this.recreateNetButton.Location = new System.Drawing.Point(103, 198);
-            this.recreateNetButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.recreateNetButton.Margin = new System.Windows.Forms.Padding(4);
             this.recreateNetButton.Name = "recreateNetButton";
             this.recreateNetButton.Size = new System.Drawing.Size(187, 37);
             this.recreateNetButton.TabIndex = 17;
@@ -240,7 +240,7 @@
             // classCounter
             // 
             this.classCounter.Location = new System.Drawing.Point(223, 154);
-            this.classCounter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.classCounter.Margin = new System.Windows.Forms.Padding(4);
             this.classCounter.Maximum = new decimal(new int[] {
             4,
             0,
@@ -274,7 +274,7 @@
             // testNetButton
             // 
             this.testNetButton.Location = new System.Drawing.Point(217, 321);
-            this.testNetButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.testNetButton.Margin = new System.Windows.Forms.Padding(4);
             this.testNetButton.Name = "testNetButton";
             this.testNetButton.Size = new System.Drawing.Size(133, 37);
             this.testNetButton.TabIndex = 14;
@@ -286,7 +286,7 @@
             // netTrainButton
             // 
             this.netTrainButton.Location = new System.Drawing.Point(41, 321);
-            this.netTrainButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.netTrainButton.Margin = new System.Windows.Forms.Padding(4);
             this.netTrainButton.Name = "netTrainButton";
             this.netTrainButton.Size = new System.Drawing.Size(133, 37);
             this.netTrainButton.TabIndex = 11;
@@ -298,7 +298,7 @@
             // AccuracyCounter
             // 
             this.AccuracyCounter.Location = new System.Drawing.Point(33, 258);
-            this.AccuracyCounter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.AccuracyCounter.Margin = new System.Windows.Forms.Padding(4);
             this.AccuracyCounter.Maximum = 100;
             this.AccuracyCounter.Name = "AccuracyCounter";
             this.AccuracyCounter.Size = new System.Drawing.Size(327, 56);
@@ -309,7 +309,7 @@
             // EpochesCounter
             // 
             this.EpochesCounter.Location = new System.Drawing.Point(223, 121);
-            this.EpochesCounter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.EpochesCounter.Margin = new System.Windows.Forms.Padding(4);
             this.EpochesCounter.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -332,7 +332,7 @@
             // TrainingSizeCounter
             // 
             this.TrainingSizeCounter.Location = new System.Drawing.Point(223, 87);
-            this.TrainingSizeCounter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.TrainingSizeCounter.Margin = new System.Windows.Forms.Padding(4);
             this.TrainingSizeCounter.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -375,7 +375,7 @@
             // trainOneButton
             // 
             this.trainOneButton.Location = new System.Drawing.Point(685, 591);
-            this.trainOneButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.trainOneButton.Margin = new System.Windows.Forms.Padding(4);
             this.trainOneButton.Name = "trainOneButton";
             this.trainOneButton.Size = new System.Drawing.Size(168, 37);
             this.trainOneButton.TabIndex = 8;
@@ -386,7 +386,7 @@
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(689, 522);
-            this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(388, 27);
             this.progressBar1.Step = 1;
@@ -445,9 +445,9 @@
             this.groupBox2.Controls.Add(this.AIMLOutput);
             this.groupBox2.Controls.Add(this.AIMLInput);
             this.groupBox2.Location = new System.Drawing.Point(1085, 15);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox2.Size = new System.Drawing.Size(475, 226);
             this.groupBox2.TabIndex = 16;
             this.groupBox2.TabStop = false;
@@ -456,7 +456,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(292, 71);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(163, 42);
             this.button1.TabIndex = 2;
@@ -467,7 +467,7 @@
             // AIMLOutput
             // 
             this.AIMLOutput.Location = new System.Drawing.Point(17, 124);
-            this.AIMLOutput.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.AIMLOutput.Margin = new System.Windows.Forms.Padding(4);
             this.AIMLOutput.Multiline = true;
             this.AIMLOutput.Name = "AIMLOutput";
             this.AIMLOutput.Size = new System.Drawing.Size(436, 94);
@@ -477,7 +477,7 @@
             // 
             this.AIMLInput.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.AIMLInput.Location = new System.Drawing.Point(15, 28);
-            this.AIMLInput.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.AIMLInput.Margin = new System.Windows.Forms.Padding(4);
             this.AIMLInput.Name = "AIMLInput";
             this.AIMLInput.Size = new System.Drawing.Size(439, 34);
             this.AIMLInput.TabIndex = 0;
@@ -487,9 +487,9 @@
             this.groupBox3.Controls.Add(this.TLGBotOnButton);
             this.groupBox3.Controls.Add(this.TLGUsersMessages);
             this.groupBox3.Location = new System.Drawing.Point(1085, 247);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox3.Size = new System.Drawing.Size(475, 380);
             this.groupBox3.TabIndex = 17;
             this.groupBox3.TabStop = false;
@@ -498,7 +498,7 @@
             // TLGBotOnButton
             // 
             this.TLGBotOnButton.Location = new System.Drawing.Point(292, 23);
-            this.TLGBotOnButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.TLGBotOnButton.Margin = new System.Windows.Forms.Padding(4);
             this.TLGBotOnButton.Name = "TLGBotOnButton";
             this.TLGBotOnButton.Size = new System.Drawing.Size(163, 42);
             this.TLGBotOnButton.TabIndex = 1;
@@ -509,7 +509,7 @@
             // TLGUsersMessages
             // 
             this.TLGUsersMessages.Location = new System.Drawing.Point(8, 81);
-            this.TLGUsersMessages.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.TLGUsersMessages.Margin = new System.Windows.Forms.Padding(4);
             this.TLGUsersMessages.Multiline = true;
             this.TLGUsersMessages.Name = "TLGUsersMessages";
             this.TLGUsersMessages.Size = new System.Drawing.Size(457, 291);

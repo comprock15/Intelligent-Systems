@@ -132,6 +132,7 @@ namespace NeuralNetwork1
     /// </summary>
     public class SamplesSet : IEnumerable
     {
+        private Random random = new Random();
         /// <summary>
         /// Накопленные обучающие образы
         /// </summary>
@@ -170,6 +171,11 @@ namespace NeuralNetwork1
             foreach (var sample in samples)
                 if (sample.Correct()) ++correct; else ++wrong;
             return correct / (correct + wrong);
+        }
+
+        public void Shuffle()
+        {
+            samples = samples.OrderBy(item => random.Next()).ToList();
         }
         // Тут бы ещё сохранение в файл и чтение сделать, вообще классно было бы
     }

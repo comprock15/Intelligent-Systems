@@ -60,14 +60,18 @@ namespace NeuralNetwork1
                 AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(200,200);
                 var uProcessed = scaleFilter.Apply(AForge.Imaging.UnmanagedImage.FromManagedImage(bm));
 
-                Sample sample = GenerateImage.GenerateFigure(uProcessed);
+                Sample sample = DatasetGetter.ProcessToSample(uProcessed.ToManagedImage());
 
                 switch(perseptron.Predict(sample))
                 {
-                    case FigureType.Rectangle: botik.SendTextMessageAsync(message.Chat.Id, "Это легко, это был прямоугольник!");break;
-                    case FigureType.Circle: botik.SendTextMessageAsync(message.Chat.Id, "Это легко, кружочек!"); break;
-                    case FigureType.Sinusiod: botik.SendTextMessageAsync(message.Chat.Id, "Синусоида!"); break;
-                    case FigureType.Triangle: botik.SendTextMessageAsync(message.Chat.Id, "Это легко, это был треугольник!"); break;
+                    case FigureType.Beta: botik.SendTextMessageAsync(message.Chat.Id, "Бета!");break;
+                    case FigureType.Chi: botik.SendTextMessageAsync(message.Chat.Id, "Хи!"); break;
+                    case FigureType.Eta: botik.SendTextMessageAsync(message.Chat.Id, "Эта!"); break;
+                    case FigureType.Iota: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
+                    case FigureType.Nu: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
+                    case FigureType.Omicron: botik.SendTextMessageAsync(message.Chat.Id, "Омикрон!"); break;
+                    case FigureType.Psi: botik.SendTextMessageAsync(message.Chat.Id, "Пси!"); break;
+                    case FigureType.Tau: botik.SendTextMessageAsync(message.Chat.Id, "Тау!"); break;
                     default: botik.SendTextMessageAsync(message.Chat.Id, "Я такого не знаю!"); break;
                 }
 

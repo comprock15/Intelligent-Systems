@@ -12,11 +12,15 @@ namespace NeuralNetwork1
 {
 
 	public delegate void FormUpdater(double progress, double error, TimeSpan time);
+    public delegate void FormUpdateDelegate();
 
     public delegate void UpdateTLGMessages(string msg);
 
     public partial class Form1 : Form
     {
+        SamplesSet samples = null;
+        Controller controller = null;
+
         /// <summary>
         /// Чат-бот AIML
         /// </summary>
@@ -27,7 +31,7 @@ namespace NeuralNetwork1
         /// <summary>
         /// Генератор изображений (образов)
         /// </summary>
-        GenerateImage generator = new GenerateImage();
+        DatasetGetter generator = new DatasetGetter();
         
         /// <summary>
         /// Обёртка для ActivationNetwork из Accord.Net
@@ -49,13 +53,24 @@ namespace NeuralNetwork1
             InitializeComponent();
             tlgBot = new TLGBotik(net, new UpdateTLGMessages(UpdateTLGInfo));
             netTypeBox.SelectedIndex = 1;
-            generator.figure_count = (int)classCounter.Value;
+            //generator.figure_count = (int)classCounter.Value;
             button3_Click(this, null);
             pictureBox1.Image = Properties.Resources.Title;
 
+            controller = new Controller(new FormUpdateDelegate(Foo));
+            generator.SetProcessor(controller.processor);
         }
 
-		public void UpdateLearningInfo(double progress, double error, TimeSpan elapsedTime)
+        private void Foo()
+        {
+            if (progressBar1.InvokeRequired)
+            {
+                progressBar1.Invoke(new FormUpdateDelegate(Foo));
+            }
+            StatusLabel.Text = "foo";
+        }
+
+        public void UpdateLearningInfo(double progress, double error, TimeSpan elapsedTime)
 		{
 			if (progressBar1.InvokeRequired)
 			{
@@ -81,27 +96,27 @@ namespace NeuralNetwork1
 
         private void set_result(Sample figure)
         {
-            label1.Text = figure.ToString();
+            //label1.Text = figure.ToString();
 
-            if (figure.Correct())
-                label1.ForeColor = Color.Green;
-            else
-                label1.ForeColor = Color.Red;
+            //if (figure.Correct())
+            //    label1.ForeColor = Color.Green;
+            //else
+            //    label1.ForeColor = Color.Red;
 
-            label1.Text = "Распознано : " + figure.recognizedClass.ToString();
+            //label1.Text = "Распознано : " + figure.recognizedClass.ToString();
 
-            label8.Text = String.Join("\n", net.getOutput().Select(d => d.ToString()));
-            pictureBox1.Image = generator.genBitmap();
-            pictureBox1.Invalidate();
+            //label8.Text = String.Join("\n", net.getOutput().Select(d => d.ToString()));
+            //pictureBox1.Image = generator.genBitmap();
+            //pictureBox1.Invalidate();
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            Sample fig = generator.GenerateFigure();
+            //Sample fig = generator.GenerateFigure();
 
-            net.Predict(fig);
+            //net.Predict(fig);
 
-            set_result(fig);
+            //set_result(fig);
 
             /*var rnd = new Random();
             var fname = "pic" + (rnd.Next() % 100).ToString() + ".jpg";
@@ -118,11 +133,14 @@ namespace NeuralNetwork1
             pictureBox1.Enabled = false;
             trainOneButton.Enabled = false;
 
-            //  Создаём новую обучающую выборку
-            SamplesSet samples = new SamplesSet();
+            if (samples is null)
+                samples = generator.GetDataset();
 
-            for (int i = 0; i < training_size; i++)
-                samples.AddSample(generator.GenerateFigure());
+            samples.Shuffle();
+            //var err = controller.processor.TrainNet(samples, 1, 0.0001, true);
+            //errorLabel.Text = $"Ошибка: {err}";
+            //for (int i = 0; i < training_size; i++)
+            //    samples.AddSample(generator.GenerateFigure());
 
             //  Обучение запускаем асинхронно, чтобы не блокировать форму
             double f = await Task.Run(() => net.TrainOnDataSet(samples, epoches, acceptable_error, parallel));
@@ -149,12 +167,6 @@ namespace NeuralNetwork1
         private void button2_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
-            //  Тут просто тестирование новой выборки
-            //  Создаём новую обучающую выборку
-            SamplesSet samples = new SamplesSet();
-
-            for (int i = 0; i < (int)TrainingSizeCounter.Value; i++)
-                samples.AddSample(generator.GenerateFigure());
 
             double accuracy = net.TestOnDataSet(samples);
             
@@ -171,7 +183,7 @@ namespace NeuralNetwork1
         {
             //  Проверяем корректность задания структуры сети
             int[] structure = netStructureBox.Text.Split(';').Select((c) => int.Parse(c)).ToArray();
-            if (structure.Length < 2 || structure[0] != 400 || structure[structure.Length - 1] != generator.figure_count)
+            if (structure.Length < 2 || structure[0] != 200 || structure[structure.Length - 1] != generator.FigureCount)
             {
                 MessageBox.Show("А давайте вы структуру сети нормально запишите, ОК?", "Ошибка", MessageBoxButtons.OK);
                 return;
@@ -192,7 +204,7 @@ namespace NeuralNetwork1
 
         private void classCounter_ValueChanged(object sender, EventArgs e)
         {
-            generator.figure_count = (int)classCounter.Value;
+            generator.FigureCount = (int)classCounter.Value;
             var vals = netStructureBox.Text.Split(';');
             int outputNeurons;
             if (int.TryParse(vals.Last(),out outputNeurons))
@@ -205,11 +217,11 @@ namespace NeuralNetwork1
         private void btnTrainOne_Click(object sender, EventArgs e)
         {
             if (net == null) return;
-            Sample fig = generator.GenerateFigure();
-            pictureBox1.Image = generator.genBitmap();
-            pictureBox1.Invalidate();
-            net.Train(fig, false);
-            set_result(fig);
+            //Sample fig = generator.GenerateFigure();
+            //pictureBox1.Image = generator.genBitmap();
+            //pictureBox1.Invalidate();
+            //net.Train(fig, false);
+            //set_result(fig);
         }
 
         private void netTrainButton_MouseEnter(object sender, EventArgs e)
@@ -233,6 +245,8 @@ namespace NeuralNetwork1
                     net = AccordNet;
                     break;
             }
+            if (controller != null)
+                controller.processor.network = net;
         }
 
         private void recreateNetButton_MouseEnter(object sender, EventArgs e)
