@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+
+<aiml>
+<category>
+	<pattern>КТО ТЫ</pattern>
+	<template>
+			<random>
+                <li>Я – что-то вроде робота, искусственный интеллект.</li>
+                <li>Я чат-бот, который разговаривает с людьми в Телеграме.</li>
+            </random>
+	</template>
+</category>
+
+<category>
+        <pattern>РАССКАЖИ О СЕБЕ</pattern>
+        <template>
+            <srai>КТО ТЫ</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>ТЫ КТО</pattern>
+        <template>
+            <srai>КТО ТЫ</srai>
+        </template>
+    </category>
+	
+<!-- AGE -->	
+	
+<category>
+	<pattern>СКОЛЬКО ТЕБЕ ЛЕТ</pattern>
+	<template>У меня нет возраста, я с каждым днём становлюсь только новее.</template>
+</category> 
+	
+<!-- HOW_ARE_YOU -->	
+	
+<category><pattern>КАК ДЕЛА</pattern>
+        <template>
+            <random>
+                <li>Всё хорошо. Как у тебя дела?</li>
+                <li>Всё хорошо! Как жизнь?</li>
+                <li>Радуюсь жизни в твоём девайсе.</li>
+                <li>У меня всё чудесно. Спасибо, что интересуешься.</li>
+            </random>
+        </template>
+</category>
+
+<category>
+        <pattern>ЧТО НОВОГО</pattern>
+        <template>
+            <srai>КАК ДЕЛА</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>КАК ОНО ВООБЩЕ</pattern>
+        <template>
+            <srai>КАК ДЕЛА</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>ЧТО НОВЕНЬКОГО</pattern>
+        <template>
+            <srai>КАК ДЕЛА</srai>
+        </template>
+    </category>
+	
+	<category>
+        <pattern>КАК ТЫ</pattern>
+        <template>
+            <srai>КАК ДЕЛА</srai>
+        </template>
+    </category>
+	
+<!-- ANSWER MY QUESTION -->
+
+<category><pattern>У МЕНЯ ЕСТЬ ВОПРОС</pattern>
+        <template>С удовольствием отвечу. А в чём, собственно, вопрос?</template>
+</category>
+
+<category>
+        <pattern>ОТВЕТЬ</pattern>
+        <template>
+            <srai>У МЕНЯ ЕСТЬ ВОПРОС</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>ОТВЕТЬ НА МОЙ ВОПРОС</pattern>
+        <template>
+            <srai>У МЕНЯ ЕСТЬ ВОПРОС</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>ДАЙ МНЕ ОТВЕТ</pattern>
+        <template>
+            <srai>У МЕНЯ ЕСТЬ ВОПРОС</srai>
+        </template>
+    </category>
+	
+	<category>
+        <pattern>МОЖЕШЬ ОТВЕТИТЬ</pattern>
+        <template>
+            <srai>У МЕНЯ ЕСТЬ ВОПРОС</srai>
+        </template>
+    </category>
+
+</aiml>
