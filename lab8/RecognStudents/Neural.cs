@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 namespace AForge.WindowsForms
 {
@@ -141,6 +142,8 @@ namespace AForge.WindowsForms
         /// </summary>
         public List<Sample> samples = new List<Sample>();
 
+        Random random = new Random();
+
         /// <summary>
         /// Добавление образа к коллекции
         /// </summary>
@@ -178,6 +181,11 @@ namespace AForge.WindowsForms
                 else ++wrong;
             }
             return correct / (correct + wrong);
+        }
+
+        public void Shuffle()
+        {
+            samples = samples.OrderBy(item => random.Next()).ToList();
         }
 
         // Тут бы ещё сохранение в файл и чтение сделать, вообще классно было бы
