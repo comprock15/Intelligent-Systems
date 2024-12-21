@@ -238,7 +238,7 @@ namespace AForge.WindowsForms
         {
             if (samples is null)
                 samples = generator.GetDataset();
-            var err = controller.processor.TrainNet(samples, 5, 0.0001, true);
+            var err = controller.processor.TrainNet(samples, 1, 0.0001, true);
             errorLabel.Text = $"Ошибка: {err}";
         }
     }

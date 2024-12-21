@@ -143,7 +143,7 @@ namespace AForge.WindowsForms
 
             if (settings.processImg)
             {
-                //string info = processSample(ref uProcessed);
+                //lastPrediction = processSample(ref uProcessed);
                 if (framesCount % 5 == 0)
                 {
                     lastPrediction = Predict(ToBinary(original));
@@ -243,6 +243,25 @@ namespace AForge.WindowsForms
             return err;
         }
 
+        //public Bitmap ToBinary(Bitmap bitmap)
+        //{
+        //    Bitmap uProcessed = bitmap;
+
+        //    // В оттенки серого
+        //    AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
+        //    uProcessed = grayFilter.Apply(bitmap);
+
+        //    AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(100, 100);
+        //    uProcessed = scaleDown.Apply(uProcessed);
+
+        //    // В черно-белое
+        //    AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
+        //    threshldFilter.PixelBrightnessDifferenceLimit = settings.differenceLim;
+        //    threshldFilter.ApplyInPlace(uProcessed);
+
+        //    return uProcessed;
+        //}
+
         public Bitmap ToBinary(Bitmap bitmap)
         {
             Bitmap uProcessed = bitmap;
@@ -251,67 +270,66 @@ namespace AForge.WindowsForms
             AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
             uProcessed = grayFilter.Apply(bitmap);
 
-            AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(100, 100);
-            uProcessed = scaleDown.Apply(uProcessed);
+            AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(100, 100);
+            uProcessed = scaleFilter.Apply(uProcessed);
 
             // В черно-белое
             AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
             threshldFilter.PixelBrightnessDifferenceLimit = settings.differenceLim;
             threshldFilter.ApplyInPlace(uProcessed);
 
+            AForge.Imaging.Filters.Invert InvertFilter = new AForge.Imaging.Filters.Invert();
+            InvertFilter.ApplyInPlace(uProcessed);
+
+            AForge.Imaging.BlobCounterBase bc = new AForge.Imaging.BlobCounter();
+
+            bc.FilterBlobs = true;
+            bc.MinWidth = 3;
+            bc.MinHeight = 3;
+            // Упорядочиваем по размеру
+            bc.ObjectsOrder = AForge.Imaging.ObjectsOrder.Size;
+            // Обрабатываем картинку
+
+            bc.ProcessImage(uProcessed);
+
+            Rectangle[] rects = bc.GetObjectsRectangles();
+
+            // К сожалению, код с использованием подсчёта blob'ов не работает, поэтому просто высчитываем максимальное покрытие
+            // для всех блобов - для нескольких цифр, к примеру, 16, можем получить две области - отдельно для 1, и отдельно для 6.
+            // Строим оболочку, включающую все блоки. Решение плохое, требуется доработка
+            int lx = uProcessed.Width;
+            int ly = uProcessed.Height;
+            int rx = 0;
+            int ry = 0;
+            for (int i = 0; i < rects.Length; ++i)
+            {
+                if (lx > rects[i].X) lx = rects[i].X;
+                if (ly > rects[i].Y) ly = rects[i].Y;
+                if (rx < rects[i].X + rects[i].Width) rx = rects[i].X + rects[i].Width;
+                if (ry < rects[i].Y + rects[i].Height) ry = rects[i].Y + rects[i].Height;
+            }
+
+            // Обрезаем края, оставляя только центральные блобчики
+            if (lx < rx)
+            {
+                AForge.Imaging.Filters.Crop cropFilter = new AForge.Imaging.Filters.Crop(new Rectangle(lx, ly, rx - lx, ry - ly));
+                uProcessed = cropFilter.Apply(uProcessed);
+            }
+
+            //AForge.Imaging.Filters.GaussianBlur gaussianBlur = new AForge.Imaging.Filters.GaussianBlur(sigma: 2.0);
+            //uProcessed = gaussianBlur.Apply(uProcessed);
+
+            //AForge.Imaging.Filters.Median medianFilter = new AForge.Imaging.Filters.Median();
+            //uProcessed = medianFilter.Apply(uProcessed);
+
+            ////  Масштабируем до 100x100
+            uProcessed = scaleFilter.Apply(uProcessed);
+            //threshldFilter.ApplyInPlace(uProcessed);
+
+            //processed = uProcessed;
+
             return uProcessed;
         }
-
-        //public static Bitmap ToBinary(Bitmap bitmap)
-        //{
-        //    Bitmap uProcessed = bitmap;
-
-        //    // В оттенки серого
-        //    AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
-        //    uProcessed = grayFilter.Apply(bitmap);
-
-        //    AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(200, 200);
-        //    uProcessed = scaleDown.Apply(uProcessed);
-
-        //    // В черно-белое
-        //    AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
-        //    threshldFilter.PixelBrightnessDifferenceLimit = 0.15f; //settings.differenceLim;
-        //    threshldFilter.ApplyInPlace(uProcessed);
-
-        //    //// Обрезка
-        //    //int lx = bitmap.Width;
-        //    //int ly = bitmap.Height;
-        //    //int rx = 0;
-        //    //int ry = 0;
-        //    //for (int i = 0; i < uProcessed.Height; ++i)
-        //    //{
-        //    //    for (int j = 0; j < uProcessed.Width; ++j)
-        //    //    {
-        //    //        if (uProcessed.GetPixel(i, j).R == 0) // Черный
-        //    //        {
-        //    //            if (j < lx)
-        //    //                lx = j;
-        //    //            if (j > rx)
-        //    //                rx = j;
-        //    //            if (i < ly)
-        //    //                ly = i;
-        //    //            if (i > ry)
-        //    //                ry = i;
-        //    //        }
-        //    //    }
-        //    //}
-
-        //    //// Обрезаем края, оставляя только центральные блобчики
-        //    //if (rx != 0)
-        //    //{
-        //    //    AForge.Imaging.Filters.Crop cropFilter = new AForge.Imaging.Filters.Crop(new Rectangle(lx, ly, rx - lx, ry - ly));
-        //    //    uProcessed = cropFilter.Apply(uProcessed);
-        //    //}
-
-
-
-        //    return uProcessed;
-        //}
 
     }
 }

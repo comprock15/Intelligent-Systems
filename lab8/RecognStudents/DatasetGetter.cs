@@ -17,7 +17,8 @@ namespace AForge.WindowsForms
     {
         public string datasetPath = "..\\..\\Dataset+";
         private MagicEye processor; 
-        const int inputSize = 100;
+        const short inputSize = 100;
+        const short blackThreshold = 128;
 
         /// <summary>
         /// Количество классов генерируемых фигур (8 - максимум)
@@ -114,22 +115,22 @@ namespace AForge.WindowsForms
             for (int i = 0; i < input.Length; i++)
                 input[i] = 0;
 
-            //for (int i = 0; i < size; i++)
-            //    for (int j = 0; j < size; j++)
+            //for (int i = 0; i < inputSize; i++)
+            //    for (int j = 0; j < inputSize; j++)
             //        if (bitmap.GetPixel(i, j).R == 0)
             //        {
             //            input[i] += 1;
-            //            input[size + j] += 1;
+            //            input[inputSize + j] += 1;
             //        }
 
             for (int i = 0; i < inputSize; i++)
             {
-                bool prevBlack = bitmap.GetPixel(i, 0).R == 0;
+                bool prevBlack = bitmap.GetPixel(i, 0).R < blackThreshold;
                 for (int j = 1; j < inputSize; j++)
                 {
                     Color pixel = bitmap.GetPixel(i, j);
                     //Console.WriteLine(pixel);
-                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+                    if ((pixel.R < blackThreshold && !prevBlack) || (pixel.R >= blackThreshold && prevBlack))
                     {
                         ++input[i];
                         prevBlack = !prevBlack;
@@ -139,12 +140,12 @@ namespace AForge.WindowsForms
 
             for (int j = 0; j < inputSize; j++)
             {
-                bool prevBlack = bitmap.GetPixel(0, j).R == 0;
+                bool prevBlack = bitmap.GetPixel(0, j).R < blackThreshold;
                 for (int i = 1; i < inputSize; i++)
                 {
                     Color pixel = bitmap.GetPixel(i, j);
                     //Console.WriteLine(pixel);
-                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+                    if ((pixel.R < blackThreshold && !prevBlack) || (pixel.R >= blackThreshold && prevBlack))
                     {
                         ++input[inputSize + j];
                         prevBlack = !prevBlack;
