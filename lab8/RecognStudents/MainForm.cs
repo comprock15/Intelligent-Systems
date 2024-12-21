@@ -110,7 +110,8 @@ namespace AForge.WindowsForms
             if (!Directory.Exists(saveImageDir))
                 Directory.CreateDirectory(saveImageDir);
 
-            controller.processor.network = new StudentNetwork(new int[] { 1000, 1200, 500, 8 });
+            controller.processor.network = new StudentNetwork(new int[] { 200, 400, 100, 8 });
+            generator.SetProcessor(controller.processor);
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -237,7 +238,7 @@ namespace AForge.WindowsForms
         {
             if (samples is null)
                 samples = generator.GetDataset();
-            var err = controller.processor.TrainNet(samples, 5, 0.01, true);
+            var err = controller.processor.TrainNet(samples, 5, 0.0001, true);
             errorLabel.Text = $"Ошибка: {err}";
         }
     }

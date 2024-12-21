@@ -15,80 +15,14 @@ namespace AForge.WindowsForms
 
     public class DatasetGetter
     {
-        public string datasetPath = "..\\..\\Dataset-";
+        public string datasetPath = "..\\..\\Dataset+";
+        private MagicEye processor; 
+        const int inputSize = 100;
 
         /// <summary>
-        /// Бинарное представление образа
-        /// </summary>
-        public bool[,] img = new bool[500, 500];
-
-        /// <summary>
-        /// Количество классов генерируемых фигур (4 - максимум)
+        /// Количество классов генерируемых фигур (8 - максимум)
         /// </summary>
         public int FigureCount { get; set; } = 8;
-
-        /// <summary>
-        /// Очистка образа
-        /// </summary>
-        public void ClearImage()
-        {
-            for (int i = 0; i < 200; ++i)
-                for (int j = 0; j < 200; ++j)
-                    img[i, j] = false;
-        }
-
-        //public Sample GenerateFigure()
-        //{
-        //    generate_figure();
-        //    double[] input = new double[400];
-        //    for (int i = 0; i < 400; i++)
-        //        input[i] = 0;
-
-        //    FigureType type = currentFigure;
-
-        //    for (int i = 0; i < 200; i++)
-        //        for (int j = 0; j < 200; j++)
-        //            if (img[i, j])
-        //            {
-        //                input[i] += 1;
-        //                input[200 + j] += 1;
-        //            }
-        //    return new Sample(input, FigureCount, type);
-        //}
-
-
-        //public void generate_figure(FigureType type = FigureType.Undef)
-        //{
-
-        //    if (type == FigureType.Undef || (int)type >= FigureCount)
-        //        type = (FigureType)rand.Next(FigureCount);
-        //    ClearImage();
-        //    switch (type)
-        //    {
-        //        case FigureType.Rectangle: create_rectangle(); break;
-        //        case FigureType.Triangle: create_triangle(); break;
-        //        case FigureType.Circle: create_circle(); break;
-        //        case FigureType.Sinusiod: create_sin(); break;
-
-        //        default:
-        //            type = FigureType.Undef;
-        //            throw new Exception("WTF?!!! Не могу я создать такую фигуру!");
-        //    }
-        //}
-
-        /// <summary>
-        /// Возвращает битовое изображение для вывода образа
-        /// </summary>
-        /// <returns></returns>
-        public Bitmap GenBitmap()
-        {
-            Bitmap drawArea = new Bitmap(200, 200);
-            for (int i = 0; i < 200; ++i)
-                for (int j = 0; j < 200; ++j)
-                    if (img[i, j])
-                        drawArea.SetPixel(i, j, Color.Black);
-            return drawArea;
-        }
 
         public SamplesSet GetDataset()
         {
@@ -103,13 +37,15 @@ namespace AForge.WindowsForms
                 foreach (string filename in Directory.GetFiles(subdir))
                 {
                     Image img = Image.FromFile(filename);
-                    Bitmap bitmap = MagicEye.ToBinary(new Bitmap(img));
+                    Bitmap bitmap = processor.ToBinary(new Bitmap(img));
                     samples.AddSample(ProcessToSample(bitmap, FigureCount, figure));
                 }
             }
 
             return samples;
         }
+
+        internal void SetProcessor(MagicEye processor) => this.processor = processor;
 
         public static FigureType GetClassByName(string name)
         {
@@ -174,48 +110,47 @@ namespace AForge.WindowsForms
 
         public static Sample ProcessToSample(Bitmap bitmap, int figureCount, FigureType figureType=FigureType.Undef)
         {
-            short size = 500;
-            double[] input = new double[size + size];
-            for (int i = 0; i < size; i++)
+            double[] input = new double[inputSize + inputSize];
+            for (int i = 0; i < input.Length; i++)
                 input[i] = 0;
 
-            for (int i = 0; i < size; i++)
-                for (int j = 0; j < size; j++)
-                    if (bitmap.GetPixel(i, j).R == 0)
-                    {
-                        input[i] += 1;
-                        input[size + j] += 1;
-                    }
-
             //for (int i = 0; i < size; i++)
-            //{
-            //    bool prevBlack = bitmap.GetPixel(i, 0).R == 0;
-            //    for (int j = 1; j < size; j++)
-            //    {
-            //        Color pixel = bitmap.GetPixel(i, j);
-            //        //Console.WriteLine(pixel);
-            //        if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+            //    for (int j = 0; j < size; j++)
+            //        if (bitmap.GetPixel(i, j).R == 0)
             //        {
             //            input[i] += 1;
-            //            prevBlack = !prevBlack;
-            //        }
-            //    }
-            //}
-
-            //for (int j = 0; j < size; j++)
-            //{
-            //    bool prevBlack = bitmap.GetPixel(0, j).R == 0;
-            //    for (int i = 1; i < size; i++)
-            //    {
-            //        Color pixel = bitmap.GetPixel(i, j);
-            //        //Console.WriteLine(pixel);
-            //        if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
-            //        {
             //            input[size + j] += 1;
-            //            prevBlack = !prevBlack;
             //        }
-            //    }
-            //}
+
+            for (int i = 0; i < inputSize; i++)
+            {
+                bool prevBlack = bitmap.GetPixel(i, 0).R == 0;
+                for (int j = 1; j < inputSize; j++)
+                {
+                    Color pixel = bitmap.GetPixel(i, j);
+                    //Console.WriteLine(pixel);
+                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+                    {
+                        ++input[i];
+                        prevBlack = !prevBlack;
+                    }
+                }
+            }
+
+            for (int j = 0; j < inputSize; j++)
+            {
+                bool prevBlack = bitmap.GetPixel(0, j).R == 0;
+                for (int i = 1; i < inputSize; i++)
+                {
+                    Color pixel = bitmap.GetPixel(i, j);
+                    //Console.WriteLine(pixel);
+                    if ((pixel.R == 0 && !prevBlack) || (pixel.R != 0 && prevBlack))
+                    {
+                        ++input[inputSize + j];
+                        prevBlack = !prevBlack;
+                    }
+                }
+            }
             return new Sample(input, figureCount, figureType);
         }
     }

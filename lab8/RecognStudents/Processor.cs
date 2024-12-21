@@ -146,7 +146,7 @@ namespace AForge.WindowsForms
                 //string info = processSample(ref uProcessed);
                 if (framesCount % 5 == 0)
                 {
-                    lastPrediction = Predict(ref uProcessed);
+                    lastPrediction = Predict(ToBinary(original));
                     framesCount = 0;
                 }
                 Font f = new Font(FontFamily.GenericSansSerif, 20);
@@ -230,9 +230,9 @@ namespace AForge.WindowsForms
             return rez;
         }
 
-        public string Predict(ref Imaging.UnmanagedImage unmanaged)
+        public string Predict(Bitmap bitmap)
         {
-            Sample sample = DatasetGetter.ProcessToSample(unmanaged.ToManagedImage(), 8);
+            Sample sample = DatasetGetter.ProcessToSample(bitmap, 8);
             FigureType figure = network.Predict(sample);
             return DatasetGetter.GetNameByClass(figure);
         }
@@ -243,7 +243,7 @@ namespace AForge.WindowsForms
             return err;
         }
 
-        public static Bitmap ToBinary(Bitmap bitmap)
+        public Bitmap ToBinary(Bitmap bitmap)
         {
             Bitmap uProcessed = bitmap;
 
@@ -251,12 +251,12 @@ namespace AForge.WindowsForms
             AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
             uProcessed = grayFilter.Apply(bitmap);
 
-            //AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(200, 200);
-            //uProcessed = scaleDown.Apply(uProcessed);
+            AForge.Imaging.Filters.ResizeBilinear scaleDown = new AForge.Imaging.Filters.ResizeBilinear(100, 100);
+            uProcessed = scaleDown.Apply(uProcessed);
 
             // В черно-белое
             AForge.Imaging.Filters.BradleyLocalThresholding threshldFilter = new AForge.Imaging.Filters.BradleyLocalThresholding();
-            threshldFilter.PixelBrightnessDifferenceLimit = 0.15f; //settings.differenceLim;
+            threshldFilter.PixelBrightnessDifferenceLimit = settings.differenceLim;
             threshldFilter.ApplyInPlace(uProcessed);
 
             return uProcessed;
