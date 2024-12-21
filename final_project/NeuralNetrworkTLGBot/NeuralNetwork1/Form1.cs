@@ -35,6 +35,11 @@ namespace NeuralNetwork1
         AccordNet AccordNet = null;
 
         /// <summary>
+        /// Студенческая нейросеть
+        /// </summary>
+        StudentNetwork StudentNet = null;
+
+        /// <summary>
         /// Абстрактный базовый класс, псевдоним либо для CustomNet, либо для AccordNet
         /// </summary>
         BaseNetwork net = null;
@@ -172,11 +177,14 @@ namespace NeuralNetwork1
                 return;
             };
 
-            
             AccordNet = new AccordNet(structure);
             AccordNet.updateDelegate = UpdateLearningInfo;
 
-            net = AccordNet;
+            StudentNet = new StudentNetwork(structure);
+            StudentNet.updateDelegate = UpdateLearningInfo;
+
+            netTypeBox_SelectedIndexChanged(null, null);
+            //net = AccordNet;
 
             tlgBot.SetNet(net);
 
@@ -216,7 +224,15 @@ namespace NeuralNetwork1
 
         private void netTypeBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            net = AccordNet;
+            switch (netTypeBox.SelectedIndex)
+            {
+                case 0:
+                    net = StudentNet;
+                    break;
+                default:
+                    net = AccordNet;
+                    break;
+            }
         }
 
         private void recreateNetButton_MouseEnter(object sender, EventArgs e)

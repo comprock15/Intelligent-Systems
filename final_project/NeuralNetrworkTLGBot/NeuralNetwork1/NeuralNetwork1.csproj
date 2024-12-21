@@ -125,6 +125,7 @@
     <Compile Include="Neural.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StudentNetwork.cs" />
     <Compile Include="TLGBotik.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
