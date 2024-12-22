@@ -32,9 +32,9 @@ namespace AForge.WindowsForms
             foreach (string subdir in Directory.GetDirectories(datasetPath))
             {
 #if DEBUG
-                Console.WriteLine(subdir);
+                Console.WriteLine(subdir + " -> " + Path.GetFileName(subdir));
 #endif
-                FigureType figure = GetClassByName(Path.GetDirectoryName(subdir));
+                FigureType figure = GetClassByName(Path.GetFileName(subdir));
                 foreach (string filename in Directory.GetFiles(subdir))
                 {
                     Image img = Image.FromFile(filename);
@@ -152,6 +152,11 @@ namespace AForge.WindowsForms
                     }
                 }
             }
+
+#if DEBUG
+            Console.WriteLine("FigureType: " + figureType);
+            //Console.WriteLine("input: " + string.Join(" ", input));
+#endif
             return new Sample(input, figureCount, figureType);
         }
     }
