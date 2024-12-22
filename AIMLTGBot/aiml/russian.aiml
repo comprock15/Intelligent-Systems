@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+
+<aiml>
+  <category>
+    <pattern>_ меня зовут *</pattern>
+    <template>
+        <srai>меня зовут <star/></srai>
+    </template>
+  </category>
+  
+  <category>
+    <pattern>меня зовут *</pattern>
+    <template>
+      <random>
+        <li>Здравствуйте, <set name="user-name"><star /></set>!
+        </li>
+        <li>Добро пожаловать, <set name="user-name"><star /></set>!
+        </li>
+      </random>
+    </template>
+  </category>
+
+  <category>
+    <pattern>кто ты</pattern>
+    <template>
+      <random>
+        <li>Я заготовка бота, <get name="user-name" /></li>
+      </random>
+    </template>
+  </category>
+  
+  <category>
+    <pattern>РАССКАЖИ О СЕБЕ</pattern>
+    <template>
+      <srai>кто ты</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>Кря *</pattern>
+    <template>
+      <srai>Кря</srai>
+    </template>
+  </category>
+  
+  <category>
+    <pattern>_ Кря *</pattern>
+    <template>
+      <srai>Кря</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>_ Кря</pattern>
+    <template>
+      <srai>Кря</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>Кря</pattern>
+    <template>
+      <random>
+        <li>Кря</li>
+        <li>Кря Кря</li>
+        <li>Кря Кря Кря</li>
+        <li>Кря!</li>
+        <li>Кря Кря!</li>
+        <li>Кря Кря Кря!</li>
+        <li>Кря?</li>
+        <li>Кря Кря?</li>
+        <li>Кря Кря Кря?</li>
+        <li>Кря, <get name="user-name" /></li>
+        <li>Кря Кря, <get name="user-name" /> </li>
+        <li>Кря Кря Кря, <get name="user-name" /> </li>
+        <li>Кря, <get name="user-name" />!</li>
+        <li>Кря Кря, <get name="user-name" />!</li>
+        <li>Кря Кря Кря, <get name="user-name" />!</li>
+        <li>Кря, <get name="user-name" />?</li>
+        <li>Кря Кря, <get name="user-name" />?</li>
+        <li>Кря Кря Кря, <get name="user-name" />?</li>
+      </random>
+    </template>
+  </category>
+
+  <category>
+    <pattern>Что ты умеешь</pattern>
+    <template>
+      Волшебное ничего
+    </template>
+  </category>
+  
+  <category>
+    <pattern>Аудио</pattern>
+    <template>Жаль, я не умею слушать</template>
+  </category>
+  <category>
+    <pattern>Видео</pattern>
+    <template>Спасибо, но, кажется, у меня сломалась кнопка запуска</template>
+  </category>
+  
+  <category>
+    <pattern>*</pattern>
+    <template>Я такое не знаю, <get name="user-name"/></template>
+  </category>
+</aiml>
