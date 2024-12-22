@@ -3,17 +3,17 @@
 <!-- ACQUAINTANCE -->
 
 <aiml>
-<category>
-	<pattern>КТО ТЫ</pattern>
-	<template>
-			<random>
+    <category>
+	    <pattern>КТО ТЫ</pattern>
+	    <template>
+		    <random>
                 <li>Я – что-то вроде робота, искусственный интеллект.</li>
                 <li>Я чат-бот, который разговаривает с людьми в Телеграме.</li>
             </random>
-	</template>
-</category>
+	    </template>
+    </category>
 
-<category>
+    <category>
         <pattern>РАССКАЖИ О СЕБЕ</pattern>
         <template>
             <srai>КТО ТЫ</srai>
@@ -27,16 +27,34 @@
         </template>
     </category>
 	
+	<category>
+        <pattern>_ МЕНЯ ЗОВУТ *</pattern>
+        <template>
+            <srai>МЕНЯ ЗОВУТ <star/></srai>
+        </template>
+    </category>
+	
+	<category>
+        <pattern>МЕНЯ ЗОВУТ *</pattern>
+        <template>
+          <random>
+            <li>Здравствуй, <set name="username"><star /></set>!</li>
+            <li>Приятно познакомиться, <set name="username"><star /></set>!</li>
+          </random>
+        </template>
+  </category>
+	
 <!-- AGE -->	
 	
-<category>
-	<pattern>СКОЛЬКО ТЕБЕ ЛЕТ</pattern>
-	<template>У меня нет возраста, я с каждым днём становлюсь только новее.</template>
-</category> 
+    <category>
+	    <pattern>СКОЛЬКО ТЕБЕ ЛЕТ</pattern>
+	    <template>У меня нет возраста, я с каждым днём становлюсь только новее.</template>
+    </category> 
 	
 <!-- HOW_ARE_YOU -->	
 	
-<category><pattern>КАК ДЕЛА</pattern>
+    <category>
+		<pattern>КАК ДЕЛА</pattern>
         <template>
             <random>
                 <li>Всё хорошо. Как у тебя дела?</li>
@@ -45,9 +63,9 @@
                 <li>У меня всё чудесно. Спасибо, что интересуешься.</li>
             </random>
         </template>
-</category>
+    </category>
 
-<category>
+    <category>
         <pattern>ЧТО НОВОГО</pattern>
         <template>
             <srai>КАК ДЕЛА</srai>
@@ -77,11 +95,12 @@
 	
 <!-- ANSWER MY QUESTION -->
 
-<category><pattern>У МЕНЯ ЕСТЬ ВОПРОС</pattern>
+    <category>
+		<pattern>У МЕНЯ ЕСТЬ ВОПРОС</pattern>
         <template>С удовольствием отвечу. А в чём, собственно, вопрос?</template>
-</category>
+    </category>
 
-<category>
+    <category>
         <pattern>ОТВЕТЬ</pattern>
         <template>
             <srai>У МЕНЯ ЕСТЬ ВОПРОС</srai>
@@ -110,17 +129,17 @@
     </category>
 
 <!-- WEIRD INPUT -->
-<category>
-    <pattern>*</pattern>
-    <template>
-		<random>
-			<li>Я такое не знаю</li>
-		    <li>Эээ... Я тебя не понял</li>
-			<li>Ничего не понятно, но очень интересно</li>
-		    <li>Можешь перефразировать?</li>
-		    <li>Честно сказать, я даже не знаю, как тебе ответить</li>
-		    <li>Вот бы ещё понять, что ты имеешь в виду</li>
-		</random>
-	</template>
-</category>
+    <category>
+        <pattern>*</pattern>
+        <template>
+		    <random>
+			    <li>Я такое не знаю <get name="username" /></li>
+		        <li>Эээ... Я тебя не понял <get name="username" /></li>
+			    <li>Ничего не понятно, но очень интересно <get name="username" /></li>
+		        <li>Можешь перефразировать? <get name="username" /></li>
+		        <li>Честно сказать, я даже не знаю, как тебе ответить <get name="username" /></li>
+		        <li>Вот бы ещё понять, что ты имеешь в виду <get name="username" /></li>
+		    </random>
+	    </template>
+    </category>
 </aiml>

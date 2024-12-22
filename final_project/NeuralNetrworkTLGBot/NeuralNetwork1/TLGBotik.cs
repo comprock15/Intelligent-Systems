@@ -110,7 +110,7 @@ namespace NeuralNetwork1
             }
             else if (message.Type == MessageType.Text)
             {
-                string answer = botikAIML.Talk(message.Text);
+                string answer = botikAIML.Talk(message.Text, message.Chat.Id, message.Chat.FirstName);
                 await botik.SendTextMessageAsync(message.Chat.Id, answer);
                 formUpdater($"user: {message.Text}{Environment.NewLine}bot: {answer}");
             }

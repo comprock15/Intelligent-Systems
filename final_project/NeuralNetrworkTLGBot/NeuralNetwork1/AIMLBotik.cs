@@ -10,23 +10,41 @@ namespace NeuralNetwork1
     class AIMLBotik
     {
         Bot myBot;
-        User myUser;  ///   map[TLGUserID] -> AIML User ID
+        ///   map[TLGUserID] -> AIML User ID
+        Dictionary<long, User> users;
 
         public AIMLBotik()
         {
             myBot = new Bot();
             myBot.loadSettings();
-            myUser = new User("TLGUser", myBot);
+            users = new Dictionary<long, User>();
             myBot.isAcceptingUserInput = false;
             myBot.loadAIMLFromFiles();
             myBot.isAcceptingUserInput = true;
         }
 
-        public string Talk(string phrase)
+        public string Talk(string phrase, long userID=-1, string username="developer")
         {
-            Request r = new Request(phrase, myUser, myBot);
-            Result res = myBot.Chat(r);
-            return res.Output;
+            User user = null;
+            string result = "";
+            if (users.ContainsKey(userID))
+            {
+                user = users[userID];
+            }
+            else
+            {
+                user = AddUser(userID);
+                result += myBot.Chat(new Request($"МЕНЯ ЗОВУТ {username}", user, myBot)) + Environment.NewLine;
+            }
+            Request r = new Request(phrase, user, myBot);
+            result += myBot.Chat(r);
+            return result;
+        }
+
+        public User AddUser(long id)
+        {
+            users[id] = new User(id.ToString(), myBot);
+            return users[id];
         }
     }
 }
