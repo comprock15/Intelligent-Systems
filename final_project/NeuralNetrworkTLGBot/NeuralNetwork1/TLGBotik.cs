@@ -80,10 +80,10 @@ namespace NeuralNetwork1
                 List<(string, double)> list = new List<(string, double)>();
                 for (int i = 0; i < output.Length; i++)
                 {
-                    list.Add((vals[i], output[i]));
+                    list.Add((vals[i], Math.Round(output[i] * 100, 2)));
                 }
                 list = list.OrderByDescending(x => x.Item2).ToList();
-                await botik.SendTextMessageAsync(message.Chat.Id, string.Join("\n", list));
+                await botik.SendTextMessageAsync(message.Chat.Id, string.Join("\n", list.Select(x => $"{x.Item1}: {x.Item2} %")));
 
                 //switch(perseptron.Predict(sample))
                 //{
@@ -103,12 +103,12 @@ namespace NeuralNetwork1
             }
             else if(message.Type == MessageType.Text)
             {
-                botik.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
+                await botik.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
                 formUpdater(message.Text);
             }
             else
             {
-                botik.SendTextMessageAsync(message.Chat.Id, "Сделаю вид, что я этого не видел");
+                await botik.SendTextMessageAsync(message.Chat.Id, "Сделаю вид, что я этого не видел");
             }
 
             return;
