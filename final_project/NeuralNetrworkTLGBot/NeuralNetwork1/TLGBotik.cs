@@ -87,10 +87,14 @@ namespace NeuralNetwork1
                 list = list.OrderByDescending(x => x.Item2).ToList();
 
                 sb.Append("Я думаю, что это... ");
-                sb.Append("*" + DatasetGetter.GetNameByClass(sample.recognizedClass) + "*\n\n");
+                sb.Append("*" + DatasetGetter.GetNameByClass(sample.recognizedClass) + "*!\n\n");
                 sb.Append("Если тебе интересно, то вот, насколько отправленное фото похоже на каждую из букв:\n");
                 sb.Append(string.Join("\n", list.Select(x => $"{x.Item1}: {x.Item2} %")));
                 await botik.SendTextMessageAsync(message.Chat.Id, sb.ToString(), ParseMode.Markdown);
+
+                // Запоминаем, какую букву распознали
+                string answer = botikAIML.Talk($"БУКВА {DatasetGetter.GetNameByClass(sample.recognizedClass)}", message.Chat.Id, message.Chat.FirstName);
+                //await botik.SendTextMessageAsync(message.Chat.Id, answer);
 
                 //switch(perseptron.Predict(sample))
                 //{

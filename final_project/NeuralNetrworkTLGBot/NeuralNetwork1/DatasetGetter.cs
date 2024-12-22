@@ -16,7 +16,7 @@ namespace NeuralNetwork1
 
     public class DatasetGetter
     {
-        public string datasetPath = "..\\..\\Dataset-";
+        public string datasetPath = "..\\..\\Dataset+";
         private MagicEye processor;
         const short inputSize = 100;
         const short blackThreshold = 128;
@@ -100,21 +100,21 @@ namespace NeuralNetwork1
             switch (figureType)
             {
                 case FigureType.Beta:
-                    return "Бета!";
+                    return "Бета";
                 case FigureType.Chi:
-                    return "Хи!";
+                    return "Хи";
                 case FigureType.Eta:
-                    return "Эта!";
+                    return "Эта";
                 case FigureType.Iota:
-                    return "Йота!";
+                    return "Йота";
                 case FigureType.Nu:
-                    return "Ню!";
+                    return "Ню";
                 case FigureType.Omicron:
-                    return "Омикрон!";
+                    return "Омикрон";
                 case FigureType.Psi:
-                    return "Пси!";
+                    return "Пси";
                 case FigureType.Tau:
-                    return "Тау!";
+                    return "Тау";
                 default:
                     break;
             }
