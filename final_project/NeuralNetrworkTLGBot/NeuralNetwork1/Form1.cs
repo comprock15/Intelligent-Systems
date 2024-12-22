@@ -59,6 +59,8 @@ namespace NeuralNetwork1
 
             controller = new Controller(new FormUpdateDelegate(Foo));
             generator.SetProcessor(controller.processor);
+            tlgBot.SetDatasetGetter(generator);
+            tlgBot.SetProcessor(controller.processor);
         }
 
         private void Foo()

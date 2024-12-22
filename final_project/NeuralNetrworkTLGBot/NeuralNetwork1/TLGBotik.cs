@@ -19,6 +19,8 @@ namespace NeuralNetwork1
         public Telegram.Bot.TelegramBotClient botik = null;
 
         private UpdateTLGMessages formUpdater;
+        private DatasetGetter getter;
+        private MagicEye processor;
 
         private BaseNetwork perseptron = null;
         // CancellationToken - инструмент для отмены задач, запущенных в отдельном потоке
@@ -31,6 +33,14 @@ namespace NeuralNetwork1
             perseptron = net;
         }
 
+        public void SetDatasetGetter(DatasetGetter datasetGetter)
+        {
+            getter = datasetGetter;
+        }
+        public void SetProcessor(MagicEye proc)
+        {
+            processor = proc;
+        }
         public void SetNet(BaseNetwork net)
         {
             perseptron = net;
@@ -60,20 +70,33 @@ namespace NeuralNetwork1
                 AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(200,200);
                 var uProcessed = scaleFilter.Apply(AForge.Imaging.UnmanagedImage.FromManagedImage(bm));
 
-                Sample sample = DatasetGetter.ProcessToSample(uProcessed.ToManagedImage());
+                //Sample sample = DatasetGetter.ProcessToSample(bm);
+                Sample sample = DatasetGetter.ProcessToSample(processor.ToBinary(bm));
 
-                switch(perseptron.Predict(sample))
+                perseptron.Predict(sample);
+                StringBuilder sb = new StringBuilder();
+                double[] output = perseptron.getOutput();
+                string[] vals = getter.dict.Values.ToArray();
+                List<(string, double)> list = new List<(string, double)>();
+                for (int i = 0; i < output.Length; i++)
                 {
-                    case FigureType.Beta: botik.SendTextMessageAsync(message.Chat.Id, "Бета!");break;
-                    case FigureType.Chi: botik.SendTextMessageAsync(message.Chat.Id, "Хи!"); break;
-                    case FigureType.Eta: botik.SendTextMessageAsync(message.Chat.Id, "Эта!"); break;
-                    case FigureType.Iota: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
-                    case FigureType.Nu: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
-                    case FigureType.Omicron: botik.SendTextMessageAsync(message.Chat.Id, "Омикрон!"); break;
-                    case FigureType.Psi: botik.SendTextMessageAsync(message.Chat.Id, "Пси!"); break;
-                    case FigureType.Tau: botik.SendTextMessageAsync(message.Chat.Id, "Тау!"); break;
-                    default: botik.SendTextMessageAsync(message.Chat.Id, "Я такого не знаю!"); break;
+                    list.Add((vals[i], output[i]));
                 }
+                list = list.OrderByDescending(x => x.Item2).ToList();
+                await botik.SendTextMessageAsync(message.Chat.Id, string.Join("\n", list));
+
+                //switch(perseptron.Predict(sample))
+                //{
+                //    case FigureType.Beta: botik.SendTextMessageAsync(message.Chat.Id, "Бета!");break;
+                //    case FigureType.Chi: botik.SendTextMessageAsync(message.Chat.Id, "Хи!"); break;
+                //    case FigureType.Eta: botik.SendTextMessageAsync(message.Chat.Id, "Эта!"); break;
+                //    case FigureType.Iota: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
+                //    case FigureType.Nu: botik.SendTextMessageAsync(message.Chat.Id, "Йота!"); break;
+                //    case FigureType.Omicron: botik.SendTextMessageAsync(message.Chat.Id, "Омикрон!"); break;
+                //    case FigureType.Psi: botik.SendTextMessageAsync(message.Chat.Id, "Пси!"); break;
+                //    case FigureType.Tau: botik.SendTextMessageAsync(message.Chat.Id, "Тау!"); break;
+                //    default: botik.SendTextMessageAsync(message.Chat.Id, "Я такого не знаю!"); break;
+                //}
 
                 formUpdater("Picture recognized!");
                 return;

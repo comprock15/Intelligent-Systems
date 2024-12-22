@@ -266,9 +266,13 @@ namespace NeuralNetwork1
         {
             Bitmap uProcessed = bitmap;
 
-            // В оттенки серого
-            AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
-            uProcessed = grayFilter.Apply(bitmap);
+            try
+            {
+                // В оттенки серого
+                AForge.Imaging.Filters.Grayscale grayFilter = new AForge.Imaging.Filters.Grayscale(0.2125, 0.7154, 0.0721);
+                uProcessed = grayFilter.Apply(bitmap);
+            }
+            catch (Exception ex) { }
 
             AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(100, 100);
             uProcessed = scaleFilter.Apply(uProcessed);

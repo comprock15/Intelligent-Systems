@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Windows.Forms;
 
 namespace NeuralNetwork1
 {
@@ -19,6 +20,17 @@ namespace NeuralNetwork1
         private MagicEye processor;
         const short inputSize = 100;
         const short blackThreshold = 128;
+        public Dictionary<FigureType, string> dict = new Dictionary<FigureType, string>() {
+            { FigureType.Beta, "Бета" },
+            { FigureType.Chi, "Хи" },
+            { FigureType.Eta, "Эта" },
+            { FigureType.Iota, "Йота" },
+            { FigureType.Nu, "Ню" },
+            { FigureType.Omicron, "Омикрон" },
+            { FigureType.Psi, "Пси" },
+            { FigureType.Tau, "Тау" },
+            { FigureType.Undef, "Не знаю" }
+        };
 
         /// <summary>
         /// Количество классов генерируемых фигур (8 - максимум)
@@ -152,6 +164,10 @@ namespace NeuralNetwork1
                     }
                 }
             }
+
+#if DEBUG
+            Console.WriteLine("input: " + string.Join(" ", input));
+#endif
             return new Sample(input, figureCount, figureType);
         }
     }
