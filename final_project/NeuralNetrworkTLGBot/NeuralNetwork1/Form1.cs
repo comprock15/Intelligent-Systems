@@ -51,7 +51,7 @@ namespace NeuralNetwork1
         public Form1()
         {
             InitializeComponent();
-            tlgBot = new TLGBotik(net, new UpdateTLGMessages(UpdateTLGInfo));
+            tlgBot = new TLGBotik(net, new UpdateTLGMessages(UpdateTLGInfo), botik);
             netTypeBox.SelectedIndex = 1;
             //generator.figure_count = (int)classCounter.Value;
             button3_Click(this, null);

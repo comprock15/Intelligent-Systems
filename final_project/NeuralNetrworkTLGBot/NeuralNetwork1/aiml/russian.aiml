@@ -109,4 +109,18 @@
         </template>
     </category>
 
+<!-- WEIRD INPUT -->
+<category>
+    <pattern>*</pattern>
+    <template>
+		<random>
+			<li>Я такое не знаю</li>
+		    <li>Эээ... Я тебя не понял</li>
+			<li>Ничего не понятно, но очень интересно</li>
+		    <li>Можешь перефразировать?</li>
+		    <li>Честно сказать, я даже не знаю, как тебе ответить</li>
+		    <li>Вот бы ещё понять, что ты имеешь в виду</li>
+		</random>
+	</template>
+</category>
 </aiml>

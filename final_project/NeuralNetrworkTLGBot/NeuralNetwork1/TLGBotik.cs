@@ -17,6 +17,7 @@ namespace NeuralNetwork1
     class TLGBotik
     {
         public Telegram.Bot.TelegramBotClient botik = null;
+        public AIMLBotik botikAIML = null;
 
         private UpdateTLGMessages formUpdater;
         private DatasetGetter getter;
@@ -25,12 +26,13 @@ namespace NeuralNetwork1
         private BaseNetwork perseptron = null;
         // CancellationToken - инструмент для отмены задач, запущенных в отдельном потоке
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
-        public TLGBotik(BaseNetwork net,  UpdateTLGMessages updater)
+        public TLGBotik(BaseNetwork net,  UpdateTLGMessages updater, AIMLBotik aiml)
         { 
             var botKey = System.IO.File.ReadAllText("botkey.txt");
             botik = new Telegram.Bot.TelegramBotClient(botKey);
             formUpdater = updater;
             perseptron = net;
+            botikAIML = aiml; 
         }
 
         public void SetDatasetGetter(DatasetGetter datasetGetter)
@@ -106,10 +108,15 @@ namespace NeuralNetwork1
                 formUpdater("Picture recognized!");
                 return;
             }
-            else if(message.Type == MessageType.Text)
+            else if (message.Type == MessageType.Text)
             {
-                await botik.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
-                formUpdater(message.Text);
+                string answer = botikAIML.Talk(message.Text);
+                await botik.SendTextMessageAsync(message.Chat.Id, answer);
+                formUpdater($"user: {message.Text}{Environment.NewLine}bot: {answer}");
+            }
+            else if (message.Type == MessageType.Audio || message.Type == MessageType.Voice)
+            {
+                await botik.SendTextMessageAsync(message.Chat.Id, "Хотел бы я это послушать, но ушей у меня нет");
             }
             else
             {

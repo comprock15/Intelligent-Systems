@@ -133,6 +133,7 @@
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox1.Enabled = false;
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox1.Name = "pictureBox1";
@@ -239,15 +240,16 @@
             // 
             // classCounter
             // 
+            this.classCounter.Enabled = false;
             this.classCounter.Location = new System.Drawing.Point(223, 154);
             this.classCounter.Margin = new System.Windows.Forms.Padding(4);
             this.classCounter.Maximum = new decimal(new int[] {
-            4,
+            8,
             0,
             0,
             0});
             this.classCounter.Minimum = new decimal(new int[] {
-            1,
+            8,
             0,
             0,
             0});
@@ -255,7 +257,7 @@
             this.classCounter.Size = new System.Drawing.Size(160, 22);
             this.classCounter.TabIndex = 16;
             this.classCounter.Value = new decimal(new int[] {
-            2,
+            8,
             0,
             0,
             0});
@@ -331,15 +333,16 @@
             // 
             // TrainingSizeCounter
             // 
+            this.TrainingSizeCounter.Enabled = false;
             this.TrainingSizeCounter.Location = new System.Drawing.Point(223, 87);
             this.TrainingSizeCounter.Margin = new System.Windows.Forms.Padding(4);
             this.TrainingSizeCounter.Maximum = new decimal(new int[] {
-            100000,
+            329,
             0,
             0,
             0});
             this.TrainingSizeCounter.Minimum = new decimal(new int[] {
-            1,
+            329,
             0,
             0,
             0});
@@ -347,7 +350,7 @@
             this.TrainingSizeCounter.Size = new System.Drawing.Size(160, 22);
             this.TrainingSizeCounter.TabIndex = 6;
             this.TrainingSizeCounter.Value = new decimal(new int[] {
-            700,
+            329,
             0,
             0,
             0});
@@ -374,6 +377,7 @@
             // 
             // trainOneButton
             // 
+            this.trainOneButton.Enabled = false;
             this.trainOneButton.Location = new System.Drawing.Point(685, 591);
             this.trainOneButton.Margin = new System.Windows.Forms.Padding(4);
             this.trainOneButton.Name = "trainOneButton";
