@@ -110,7 +110,7 @@ namespace AForge.WindowsForms
             if (!Directory.Exists(saveImageDir))
                 Directory.CreateDirectory(saveImageDir);
 
-            controller.processor.network = new StudentNetwork(new int[] { 200, 400, 100, 8 });
+            controller.processor.network = new AccordNet(new int[] { 200, 400, 100, 8 });
             generator.SetProcessor(controller.processor);
         }
 
@@ -239,7 +239,7 @@ namespace AForge.WindowsForms
             if (samples is null)
                 samples = generator.GetDataset();
             samples.Shuffle();
-            var err = controller.processor.TrainNet(samples, 1, 0.0001, true);
+            var err = controller.processor.TrainNet(samples, 20, 0.000001, true);
             errorLabel.Text = $"Ошибка: {err}";
         }
     }

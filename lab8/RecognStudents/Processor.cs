@@ -166,7 +166,7 @@ namespace AForge.WindowsForms
             //        }
 
 
-            processed = uProcessed.ToManagedImage();
+            //processed = uProcessed.ToManagedImage();
 
             return true;
         }
@@ -326,7 +326,7 @@ namespace AForge.WindowsForms
             uProcessed = scaleFilter.Apply(uProcessed);
             //threshldFilter.ApplyInPlace(uProcessed);
 
-            //processed = uProcessed;
+            processed = uProcessed;
 
             return uProcessed;
         }
