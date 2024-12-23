@@ -139,7 +139,16 @@ namespace ClipsFormsExample
             for (int i = linesRead - 1; i < outputBox.Lines.Length; i++)
             {
                 if (outputBox.Lines[i] != "")
-                    clips.Eval("(assert (available-food " + outputBox.Lines[i] + "))");
+                {
+                    string[] lineSplit = outputBox.Lines[i].Split(';');
+                    string name = lineSplit[0];
+                    string certainty;
+                    if (lineSplit.Length > 1)
+                        certainty = lineSplit[1];
+                    else
+                        certainty = "1.0";
+                    clips.Eval($"(assert (available-food (name \"{name}\") (certainty-factor {certainty})))");
+                }
             }
             clips.Run();
             HandleResponse();
