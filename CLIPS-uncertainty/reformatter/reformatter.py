@@ -13,6 +13,7 @@ output_file = 'facts-rules.clp'
 
 # Словарь с фактами (чтоб парсить правила)
 stored_facts = {}
+stored_rules = []
 
 # Преобразование строки с нашим фактом в формат для клипса
 def fact_to_clips_format(fact):
@@ -28,6 +29,8 @@ def rule_to_clips_format(rule):
 
     coef = coef.replace(',', '.')
     string = f'(defrule {index}-fact-doesnt-exist\n'
+    string += f'    ?r <- (available-rule "{index}")\n'
+    #stored_rules.append(f'{index}-fact-doesnt-exist')
 
     cf_string = []
     for i, fact in enumerate(lhand.split(',')):
@@ -37,9 +40,10 @@ def rule_to_clips_format(rule):
     combine_string = f"(serial-combination-function {coef} (min {' '.join(cf_string)}))" 
     string += f'    (not (exists (available-food (name "{stored_facts[rhand]}"))))\n'
     string += '    =>\n'
+    string += f'    (retract ?r)\n'
     string += f'    (bind ?newcf {combine_string})\n'
     string += f'    (assert (available-food (name "{stored_facts[rhand]}") (certainty-factor ?newcf)))\n'
-    string += f'    (assert (sendmessage (str-cat "{description} (" ?newcf ")")))\n)\n'
+    string += f'    (assert (sendmessage (str-cat "{description} ({stored_facts[rhand]}: " ?newcf ")")))\n)\n'
     return string
 
 def rule_to_clips_format_exists(rule):
@@ -47,6 +51,8 @@ def rule_to_clips_format_exists(rule):
 
     coef = coef.replace(',', '.')
     string = f'(defrule {index}-fact-exists\n'
+    string += f'    ?r <- (available-rule "{index}")\n'
+    stored_rules.append(f'{index}')
 
     cf_string = []
     for i, fact in enumerate(lhand.split(',')):
@@ -56,9 +62,17 @@ def rule_to_clips_format_exists(rule):
     combine_string = f"(serial-combination-function {coef} (min {' '.join(cf_string)}))" 
     string += f'    ?f <- (available-food (name "{stored_facts[rhand]}") (certainty-factor ?cf))\n'
     string += '    =>\n'
+    string += f'    (retract ?r)\n'
     string += f'    (bind ?newcf (parallel-combination-function {combine_string} ?cf))\n'
     string += f'    (modify ?f (certainty-factor ?newcf))\n'
-    string += f'    (assert (sendmessage (str-cat "{description} (" ?newcf ")")))\n)\n'
+    string += f'    (assert (sendmessage (str-cat "{description} ({stored_facts[rhand]}: " ?newcf ")")))\n)\n'
+    return string
+
+def available_rules(rules):
+    string = '(deffacts available-rules\n'
+    for rule in rules:
+        string += f'    (available-rule "{rule}")\n'
+    string += ')'
     return string
 
 # Функция main просто для красоты
@@ -79,6 +93,8 @@ if __name__ == '__main__':
                 line = line.rstrip()
                 fout.write(rule_to_clips_format(line) + '\n')
                 fout.write(rule_to_clips_format_exists(line) + '\n')
+        fout.write('; Правила немножечко зацикливаются... поэтому разрешим правилам выполняться только один раз, вот список доступных\n')
+        fout.write(available_rules(stored_rules))
 
     with open("facts-list.txt", 'w', encoding='utf-8') as fout:
         fout.write('\n'.join(stored_facts.values()))
