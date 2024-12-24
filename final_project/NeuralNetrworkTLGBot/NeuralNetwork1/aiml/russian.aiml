@@ -300,6 +300,7 @@
 				<li value="омикрон"><srai>ФАКТ ОМИКРОН</srai></li>
 				<li value="тау"><srai>ФАКТ ТАУ</srai></li>
 				<li value="хи"><srai>ФАКТ ХИ</srai></li>
+                <li value="пси"><srai>ФАКТ ПСИ</srai></li>
 				<li>А я не знаю такой буквы!</li>
 			</condition>
 		</template>
